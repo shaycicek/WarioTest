@@ -7,24 +7,21 @@ public static class SuperCollider
 		if (collider is BoxCollider) {
 			closestPointOnSurface = SuperCollider.ClosestPointOnSurface(( BoxCollider )collider, to);
 			return true;
-		} else if (collider is SphereCollider) {
+		}
+		else if (collider is SphereCollider) {
 			closestPointOnSurface = SuperCollider.ClosestPointOnSurface(( SphereCollider )collider, to);
 			return true;
-		} else if (collider is CapsuleCollider) {
+		}
+		else if (collider is CapsuleCollider) {
 			closestPointOnSurface = SuperCollider.ClosestPointOnSurface(( CapsuleCollider )collider, to);
 			return true;
-		} else if (collider is MeshCollider) {
+		}
+		else if (collider is MeshCollider) {
+
 			BSPTree bspTree = collider.GetComponent<BSPTree>();
 
 			if (bspTree != null) {
 				closestPointOnSurface = bspTree.ClosestPointOn(to, radius);
-				return true;
-			}
-
-			BSPTree bsp = collider.GetComponent<BSPTree>();
-
-			if (bsp != null) {
-				closestPointOnSurface = bsp.ClosestPointOn(to, radius);
 				return true;
 			}
 
@@ -34,7 +31,8 @@ public static class SuperCollider
 				closestPointOnSurface = bfm.ClosestPointOn(to);
 				return true;
 			}
-		} else if (collider is TerrainCollider) {
+		}
+		else if (collider is TerrainCollider) {
 			closestPointOnSurface = SuperCollider.ClosestPointOnSurface(( TerrainCollider )collider, to, radius, false);
 			return true;
 		}
@@ -84,13 +82,9 @@ public static class SuperCollider
 		float dz = Mathf.Min(Mathf.Abs(halfSize.z - localNorm.z), Mathf.Abs(-halfSize.z - localNorm.z));
 
 		// Select a face to project on.
-		if (dx < dy && dx < dz) {
-			localNorm.x = Mathf.Sign(localNorm.x) * halfSize.x;
-		} else if (dy < dx && dy < dz) {
-			localNorm.y = Mathf.Sign(localNorm.y) * halfSize.y;
-		} else if (dz < dx && dz < dy) {
-			localNorm.z = Mathf.Sign(localNorm.z) * halfSize.z;
-		}
+		if (dx < dy && dx < dz) { localNorm.x = Mathf.Sign(localNorm.x) * halfSize.x; }
+		else if (dy < dx && dy < dz) { localNorm.y = Mathf.Sign(localNorm.y) * halfSize.y; }
+		else if (dz < dx && dz < dy) { localNorm.z = Mathf.Sign(localNorm.z) * halfSize.z; }
 
 		// Now we undo our transformations.
 		localNorm += collider.center;
@@ -99,6 +93,7 @@ public static class SuperCollider
 		return ct.TransformPoint(localNorm);
 	}
 
+	// Courtesy of Moodie.
 	public static Vector3 ClosestPointOnSurface(CapsuleCollider collider, Vector3 to)
 	{
 		// Transform of the collider.
@@ -124,24 +119,19 @@ public static class SuperCollider
 		Vector3 pt = Vector3.zero;
 
 		// Controller is contacting with cylinder, not spheres.
-		if (local.y < lineLength * 0.5f && local.y > -lineLength * 0.5f) {
-			pt = dir * local.y + collider.center;
-		}
+		if (local.y < lineLength * 0.5f && local.y > -lineLength * 0.5f) { pt = dir * local.y + collider.center; }
+
 		// Controller is contacting with the upper sphere.
-		else if (local.y > lineLength * 0.5f) {
-			pt = upperSphere;
-		}
+		else if (local.y > lineLength * 0.5f) { pt = upperSphere; }
+
 		// Controller is contacting with lower sphere.
-		else if (local.y < -lineLength * 0.5f) {
-			pt = lowerSphere;
-		}
+		else if (local.y < -lineLength * 0.5f) { pt = lowerSphere; }
 
 		// Calculate contact point in local coordinates and return it in world coordinates.
 		p = local - pt;
 		p.Normalize();
 		p = p * collider.radius + pt;
 		return ct.TransformPoint(p);
-
 	}
 
 	public static Vector3 ClosestPointOnSurface(TerrainCollider collider, Vector3 to, float radius, bool debug = false)
@@ -200,22 +190,18 @@ public static class SuperCollider
 			startPositionZ = 0;
 		}
 
-		if (startPositionX + numberOfXPixels + 1 > terrainData.heightmapResolution) {
-			numberOfXPixels = terrainData.heightmapResolution - startPositionX - 1;
-		}
+		if (startPositionX + numberOfXPixels + 1 > terrainData.heightmapResolution)
+		{ numberOfXPixels = terrainData.heightmapResolution - startPositionX - 1; }
 
-		if (startPositionZ + numberOfZPixels + 1 > terrainData.heightmapResolution) {
-			numberOfZPixels = terrainData.heightmapResolution - startPositionZ - 1;
-		}
+		if (startPositionZ + numberOfZPixels + 1 > terrainData.heightmapResolution)
+		{ numberOfZPixels = terrainData.heightmapResolution - startPositionZ - 1; }
 
 		// Retrieve the heights of the tile we are in and all overlapped tiles.
 		float[,] heights = terrainData.GetHeights(startPositionX, startPositionZ, numberOfXPixels + 1, numberOfZPixels + 1);
 
 		// Pre-scale the heights data to be world-scale instead of 0...1.
 		for (int i = 0; i < numberOfXPixels + 1; i++) {
-			for (int j = 0; j < numberOfZPixels + 1; j++) {
-				heights[j, i] *= terrainData.size.y;
-			}
+			for (int j = 0; j < numberOfZPixels + 1; j++) { heights[j, i] *= terrainData.size.y; }
 		}
 
 		// Find the shortest distance to any triangle in the set gathered.
@@ -232,7 +218,6 @@ public static class SuperCollider
 				Vector3 c = new Vector3((startPositionX + x) * pixelSizeX, heights[z + 1, x], (startPositionZ + z + 1) * pixelSizeZ);
 				Vector3 d = new Vector3((startPositionX + x + 1) * pixelSizeX, heights[z + 1, x + 1], (startPositionZ + z + 1) * pixelSizeZ);
 
-
 				BSPTree.ClosestPointOnTriangleToPoint(ref a, ref d, ref c, ref local, out Vector3 nearest);
 
 				float distance = (local - nearest).sqrMagnitude;
@@ -241,7 +226,6 @@ public static class SuperCollider
 					shortestDistance = distance;
 					shortestPoint = nearest;
 				}
-
 				BSPTree.ClosestPointOnTriangleToPoint(ref a, ref b, ref d, ref local, out nearest);
 
 				distance = (local - nearest).sqrMagnitude;
@@ -250,14 +234,12 @@ public static class SuperCollider
 					shortestDistance = distance;
 					shortestPoint = nearest;
 				}
-
 				if (debug) {
 					DebugDraw.DrawTriangle(a, d, c, Color.cyan);
 					DebugDraw.DrawTriangle(a, b, d, Color.red);
 				}
 			}
 		}
-
 		return collider.transform.TransformPoint(shortestPoint);
 	}
 }

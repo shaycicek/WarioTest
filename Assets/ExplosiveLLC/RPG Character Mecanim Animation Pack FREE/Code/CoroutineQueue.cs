@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace RPGCharacterAnimsFREE
+namespace RPGCharacterAnims
 {
     public class CoroutineQueue
     {
@@ -25,15 +25,12 @@ namespace RPGCharacterAnimsFREE
             if (numActive < maxActive) {
                 var runner = CoroutineRunner(coroutine);
                 coroutineStarter(runner);
-            } else {
-                queue.Enqueue(coroutine);
             }
+			else { queue.Enqueue(coroutine); }
         }
 
         public void RunCallback(System.Action callback)
-        {
-            Run(CoroutineCallback(callback));
-        }
+        { Run(CoroutineCallback(callback)); }
 
         private IEnumerator CoroutineCallback(System.Action callback)
         {

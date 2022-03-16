@@ -4,49 +4,71 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    GameObject player;
+    public ParticleSystem deathEff;
+    public ParticleSystem shotEff;
+    public bool pFiring;
+    public static Player Instance;
+    [SerializeField] private ObjectPool objectPool ;
+    public int soldierLimit;
+    public HealthBar healthBar;
     public GameObject bulletParnt;
-    public GameObject bullet;
-    public float pHealth = 100f;
+    public int pHealth = 150;
+    public int curHealth;
     public Transform turret;
-    private float timer = 0;
+    public float pRadius;
+    public GameObject restartBut;
+    private float timer;
 
     // List
     public List<Soldier> fsoldierList;
-    private List<GameObject> bulletList = new List<GameObject>();
 
     public LayerMask whatIsEnemy, whatIsFriend;
     // States
     public float attackRange;
     public bool enemyInAttackRange;
     // Attack
-    public GameObject projectile;
-    public float timeBetweenAttacks;
     bool alreadyAttacked = false;
-
-
-
-
-    // List oluþtur!!!
+    public float attackInterval = 0.5f;
 
     // Start is called before the first frame update
     void Start()
     {
-        fsoldierList = new List<Soldier>();     
+        Instance = this;
+        soldierLimit = 10;
+        curHealth = pHealth;
+        healthBar.SetMaxHealth(pHealth);
+        objectPool = ObjectPool.Instance;
+        StartCoroutine(nameof(attackRoutine));
+        fsoldierList = new List<Soldier>();
+        
     }
-
     // Update is called once per frame
     void Update()
     {
+
         //shootBullet();
         enemyInAttackRange = Physics.CheckSphere(transform.position, attackRange, whatIsEnemy);
-        if (enemyInAttackRange) attackEnemy(); // && Input.GetKeyDown("space")
-        //attackEnemy();
-        clearBullets();
-
-        if (pHealth<= 0)
+        if (enemyInAttackRange)
         {
-            Destroy(gameObject);
+            pFiring = true;
+            attackEnemy();
+        } else
+        {
+            pFiring = false;
+        }
+
+        //StartCoroutine(nameof(attackRoutine));
+        if (curHealth<= 0)
+        {
+            
+            deathEff.gameObject.SetActive(true);
+            timer += Time.deltaTime;
+            if (timer > 0.1)
+            {
+                Destroy(gameObject);
+                Time.timeScale = 0;
+                restartBut.SetActive(true);
+            }
         }
         
 
@@ -54,10 +76,11 @@ public class Player : MonoBehaviour
 
      void OnCollisionEnter(Collision collisionInfo)
     {
-        if (collisionInfo.collider.gameObject.layer.ToString() == "17") // ?? Enemy Ateþiyle Çarpýþma ??
+        if (collisionInfo.collider.gameObject.layer == LayerMask.NameToLayer("enemyBullet"))
         {
-            pHealth--;
-            //Debug.Log("Player Health = "+pHealth);
+            curHealth--;
+            healthBar.SetHealth(curHealth);
+            //Debug.Log("Player Health = "+curHealth);
         }
         
     }
@@ -66,18 +89,25 @@ public class Player : MonoBehaviour
     {
         if (!alreadyAttacked)
         {
-            //Debug.Log("player attacked ");
             turret.transform.LookAt(FindClosestEnemy().transform.position);
-            GameObject proj = Instantiate(projectile, turret.position, Quaternion.identity);
-            proj.gameObject.layer = 19;
-            proj.gameObject.transform.parent = bulletParnt.transform;
-            bulletList.Add(proj);  // Filling the bulletlist
-            Rigidbody rb = proj.GetComponent<Rigidbody>();
-            rb.AddForce(turret.transform.forward * 32f, ForceMode.Impulse);
-            rb.AddForce(turret.transform.up * 8f, ForceMode.Impulse);
-            alreadyAttacked = true;
-            Invoke(nameof(ResetAttack), timeBetweenAttacks);
 
+            //GameObject proj = Instantiate(projectile, turret.position, Quaternion.identity);
+            if(objectPool == null)
+            {
+                Debug.LogError("HATA");
+            }
+            shotEff.gameObject.SetActive(false);
+            shotEff.gameObject.SetActive(true);
+            GameObject obj = objectPool.GetPooledObject();
+            obj.transform.position = turret.transform.position;
+            obj.gameObject.layer = LayerMask.NameToLayer("friendlyBullet");
+            obj.gameObject.transform.parent = bulletParnt.transform;
+            obj.GetComponent<Rigidbody>().AddForce(turret.transform.forward * 32f, ForceMode.Impulse);
+            
+            alreadyAttacked = true;
+            
+            //Invoke(nameof(ResetAttack), timeBetweenAttacks);
+            
         }
 
     }
@@ -100,6 +130,7 @@ public class Player : MonoBehaviour
         fsoldierList.Add(soldier);
     }
 
+    
     public GameObject FindClosestEnemy()
     {
         GameObject[] gos;
@@ -120,20 +151,29 @@ public class Player : MonoBehaviour
         return closest;
     }
 
-    void clearBullets()
+    public Transform getPos()
     {
-        timer += Time.deltaTime;
-        timer = (int)System.Math.Ceiling(timer);
-        if (bulletList != null)
+        Transform obj = gameObject.transform;
+        return obj;
+
+    }
+    public int getSoldierListSize()
+    {
+        return fsoldierList.Count;
+    }
+
+    public bool getFiringBool()
+    {
+        return pFiring;
+    }
+
+    private IEnumerator attackRoutine()
+    {
+        while (true)
         {
-            for (int i = 0; i < bulletList.Count; i++)
-            {
-                if ((timer / 100) % 3 == 0)
-                {
-                    Destroy(bulletList[i]);
-                    Debug.Log("Destroyed");
-                }
-            }
+            ResetAttack();
+            yield return new WaitForSeconds(attackInterval);
+
         }
     }
 

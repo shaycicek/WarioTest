@@ -1,26 +1,23 @@
-namespace RPGCharacterAnimsFREE.Actions
+using RPGCharacterAnims.Lookups;
+
+namespace RPGCharacterAnims.Actions
 {
-    public class DiveRoll : MovementActionHandler<int>
+    public class DiveRoll : MovementActionHandler<DiveRollType>
     {
         public DiveRoll(RPGCharacterMovementController movement) : base(movement)
         {
         }
 
         public override bool CanStartAction(RPGCharacterController controller)
-        {
-            return controller.canAction;
-        }
+        { return controller.canAction; }
 
-        protected override void _StartAction(RPGCharacterController controller, int context)
+        protected override void _StartAction(RPGCharacterController controller, DiveRollType rollType)
         {
-            controller.DiveRoll(context);
-            movement.currentState = RPGCharacterState.DiveRoll;
-			controller.SetIKPause(1.25f);
+            controller.DiveRoll(rollType);
+            movement.currentState = CharacterState.DiveRoll;
 		}
 
         public override bool IsActive()
-        {
-            return movement.currentState != null && (RPGCharacterState)movement.currentState == RPGCharacterState.DiveRoll;
-        }
+        { return movement.currentState != null && (CharacterState)movement.currentState == CharacterState.DiveRoll; }
     }
 }

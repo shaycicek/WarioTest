@@ -1,4 +1,4 @@
-namespace RPGCharacterAnimsFREE.Actions
+namespace RPGCharacterAnims.Actions
 {
     /// <summary>
     /// MovementActionHandler is a special type of action handler meant for use with
@@ -18,8 +18,6 @@ namespace RPGCharacterAnimsFREE.Actions
         protected RPGCharacterMovementController movement;
 
         public MovementActionHandler(RPGCharacterMovementController movement)
-        {
-            this.movement = movement;
-        }
+        { this.movement = movement; }
     }
 }

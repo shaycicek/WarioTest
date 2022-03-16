@@ -27,7 +27,10 @@ public class BruteForceMesh:MonoBehaviour
 		triangleNormals = new Vector3[triangleCount];
 
 		for (int i = 0; i < tris.Length; i += 3) {
-			Vector3 normal = Vector3.Cross((vertices[tris[i + 1]] - vertices[tris[i]]).normalized, (vertices[tris[i + 2]] - vertices[tris[i]]).normalized).normalized;
+			Vector3 normal = Vector3.Cross((vertices[tris[i + 1]]
+				- vertices[tris[i]]).normalized, (vertices[tris[i + 2]]
+				- vertices[tris[i]]).normalized).normalized;
+
 			triangleNormals[i / 3] = normal;
 		}
 	}
@@ -101,8 +104,8 @@ public class BruteForceMesh:MonoBehaviour
 	/// <param name="result">When the method completes, contains the closest point between the two objects.</param>
 	private void ClosestPointOnTriangleToPoint(ref Vector3 vertex1, ref Vector3 vertex2, ref Vector3 vertex3, ref Vector3 point, out Vector3 result)
 	{
-		// Source: Real-Time Collision Detection by Christer Ericson.
-		// Reference: Page 136.
+		// Source: Real-Time Collision Detection by Christer Ericson
+		// Reference: Page 136
 
 		// Check if P in vertex region outside A.
 		Vector3 ab = vertex2 - vertex1;

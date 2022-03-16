@@ -1,4 +1,4 @@
-namespace RPGCharacterAnimsFREE.Actions
+namespace RPGCharacterAnims.Actions
 {
     /// <summary>
     /// InstantActionHandler is used when you need an action handler and it doesn't make sense that
@@ -28,14 +28,10 @@ namespace RPGCharacterAnimsFREE.Actions
         }
 
         public override bool IsActive()
-        {
-            return false;
-        }
+        { return false; }
 
         public override bool CanEndAction(RPGCharacterController controller)
-        {
-            return true;
-        }
+        { return true; }
 
         protected override void _EndAction(RPGCharacterController controller) { }
     }

@@ -68,13 +68,10 @@ public static class DebugDraw
 
 	public static void DrawMesh(Mesh mesh, Color color, Transform t)
 	{
-		for (int i = 0; i < mesh.triangles.Length; i += 3) {
-			DrawTriangle(mesh.vertices[mesh.triangles[i]], mesh.vertices[mesh.triangles[i + 1]], mesh.vertices[mesh.triangles[i + 2]], color, t);
-		}
+		for (int i = 0; i < mesh.triangles.Length; i += 3)
+		{ DrawTriangle(mesh.vertices[mesh.triangles[i]], mesh.vertices[mesh.triangles[i + 1]], mesh.vertices[mesh.triangles[i + 2]], color, t); }
 	}
 
 	public static Color RandomColor()
-	{
-		return new Color(Random.value, Random.value, Random.value);
-	}
+	{ return new Color(Random.value, Random.value, Random.value); }
 }

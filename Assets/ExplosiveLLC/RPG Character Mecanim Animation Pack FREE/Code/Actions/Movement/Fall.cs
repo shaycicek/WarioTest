@@ -1,4 +1,6 @@
-namespace RPGCharacterAnimsFREE.Actions
+using RPGCharacterAnims.Lookups;
+
+namespace RPGCharacterAnims.Actions
 {
     public class Fall : MovementActionHandler<EmptyContext>
     {
@@ -7,18 +9,12 @@ namespace RPGCharacterAnimsFREE.Actions
         }
 
         public override bool CanStartAction(RPGCharacterController controller)
-        {
-            return !controller.maintainingGround;
-        }
+        { return !controller.maintainingGround; }
 
         protected override void _StartAction(RPGCharacterController controller, EmptyContext context)
-        {
-            movement.currentState = RPGCharacterState.Fall;
-        }
+        { movement.currentState = CharacterState.Fall; }
 
         public override bool IsActive()
-        {
-            return movement.currentState != null && (RPGCharacterState)movement.currentState == RPGCharacterState.Fall;
-        }
+        { return movement.currentState != null && (CharacterState)movement.currentState == CharacterState.Fall; }
     }
 }

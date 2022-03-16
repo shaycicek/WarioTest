@@ -4,26 +4,46 @@ using UnityEngine;
 
 public class Top_Down_Camera : MonoBehaviour {
 
+    
+    /* public float m_Height = 10f;
+     public float m_Distance = 20f;
+     public float m_Angle = 45f;
+     public float m_SmoothSpeed = 0.5f;
+     private Vector3 refVelocity;
+      */
+    public Vector3 offset;
     public Transform m_Target;
-    public float m_Height = 10f;
-    public float m_Distance = 20f;
-    public float m_Angle = 45f;
-    public float m_SmoothSpeed = 0.5f;
-    private Vector3 refVelocity;
-	// Use this for initialization
-	void Start ()
+    public float smoothSpeed=0.125f;
+    // Use this for initialization
+    void Start ()
     {
-        HandleCamera();
+        //HandleCamera();
 
 	}
 	
 	// Update is called once per frame
 	void Update ()
     {
-        HandleCamera();
-	}
+        //HandleCamera();
+        Vector3 targetPos = m_Target.position + offset;
+        Vector3 smoothedPos = Vector3.Lerp(transform.position, targetPos, smoothSpeed);
 
-    protected virtual void HandleCamera()
+        float camXValue = smoothedPos.x;
+        if (camXValue >= 7.5f)
+        {
+            camXValue = 7.5f;
+        } else if (camXValue <= -7.5f)
+        {
+            camXValue = -7.5f;
+        }
+        transform.position = smoothedPos;
+
+            
+            
+    }
+
+
+    /*protected virtual void HandleCamera()
 
     {
         if(!m_Target)
@@ -50,7 +70,9 @@ public class Top_Down_Camera : MonoBehaviour {
         transform.position = Vector3.SmoothDamp(transform.position, finalPos, ref refVelocity, m_SmoothSpeed);
         transform.LookAt(flatTargetPosition);
 
-    }
+    } */
+
+
 /*      void OnDrawGizmos()
     {
         if(m_Target)

@@ -1,4 +1,6 @@
-namespace RPGCharacterAnimsFREE.Actions
+using RPGCharacterAnims.Lookups;
+
+namespace RPGCharacterAnims.Actions
 {
     public class Jump : MovementActionHandler<EmptyContext>
     {
@@ -8,17 +10,13 @@ namespace RPGCharacterAnimsFREE.Actions
 
         public override bool CanStartAction(RPGCharacterController controller)
         {
-            return movement.canJump && controller.maintainingGround && controller.canAction;
+            return (movement.canJump || movement.canDoubleJump) && controller.maintainingGround && controller.canAction;
         }
 
         protected override void _StartAction(RPGCharacterController controller, EmptyContext context)
-        {
-            movement.currentState = RPGCharacterState.Jump;
-        }
+        { movement.currentState = CharacterState.Jump; }
 
         public override bool IsActive()
-        {
-            return movement.currentState != null && (RPGCharacterState)movement.currentState == RPGCharacterState.Jump;
-        }
+        { return movement.currentState != null && (CharacterState)movement.currentState == CharacterState.Jump; }
     }
 }

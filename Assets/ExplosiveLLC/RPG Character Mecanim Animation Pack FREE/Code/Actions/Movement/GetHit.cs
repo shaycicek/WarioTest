@@ -4,37 +4,11 @@
 // Hit from left - 4
 // Hit from right - 5
 
-using UnityEngine;
+using RPGCharacterAnims.Extensions;
+using RPGCharacterAnims.Lookups;
 
-namespace RPGCharacterAnimsFREE.Actions
+namespace RPGCharacterAnims.Actions
 {
-    public class HitContext
-    {
-        public int number;
-        public Vector3 direction;
-        public float force;
-        public float variableForce;
-        public bool relative;
-
-        public HitContext()
-        {
-            this.number = -1;
-            this.direction = Vector3.zero;
-            this.force = 8f;
-            this.variableForce = 4f;
-            this.relative = true;
-        }
-
-        public HitContext(int number, Vector3 direction, float force = 8f, float variableForce = 4f, bool relative = true)
-        {
-            this.number = number;
-            this.direction = direction;
-            this.force = force;
-            this.variableForce = variableForce;
-            this.relative = relative;
-        }
-    }
-
     public class GetHit : MovementActionHandler<HitContext>
     {
         public GetHit(RPGCharacterMovementController movement) : base(movement)
@@ -42,22 +16,21 @@ namespace RPGCharacterAnimsFREE.Actions
         }
 
         public override bool CanStartAction(RPGCharacterController controller)
-        {
-            return true;
-        }
+        { return !controller.isKnockback && !controller.isKnockdown; }
 
         protected override void _StartAction(RPGCharacterController controller, HitContext context)
         {
-            int hitNumber = context.number;
-            Vector3 direction = context.direction;
-            float force = context.force;
-            float variableForce = context.variableForce;
+            var hitNumber = context.number;
+            var direction = context.direction;
+            var force = context.force;
+            var variableForce = context.variableForce;
 
             if (hitNumber == -1) {
-                hitNumber = AnimationData.RandomHitNumber("Hit");
-                direction = AnimationData.HitDirection("Hit", hitNumber);
+                hitNumber = (int)AnimationVariations.Hits.TakeRandom();
+                direction = AnimationData.HitDirection((HitType)hitNumber);
                 direction = controller.transform.rotation * direction;
-            } else {
+            }
+			else {
                 if (context.relative) { direction = controller.transform.rotation * direction; }
             }
 

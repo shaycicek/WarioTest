@@ -7,10 +7,11 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
 
-    public float pSpeed = 15f ;
-    public float pRotationSpeed = 20f;
+    public float pSpeed = 30f ;
+    public float pRotationSpeed = 1f;
     private Rigidbody rb;
     private PlayerInputs input;
+    public bool isMoving;
     Vector3 move = Vector3.zero;
     // Start is called before the first frame update
     void Start()
@@ -39,11 +40,19 @@ public class PlayerController : MonoBehaviour
         /* Vector3 wantedPosition = (transform.position) + (transform.forward* input.ForwardInput * pSpeed * Time.deltaTime);
         rb.MovePosition(wantedPosition); */
 
-        // Move Sideways
-        move = new Vector3(input.RotationInput , 0  , input.ForwardInput);
-        rb.MovePosition(transform.position + transform.TransformDirection(move));
+        // Move SidewaysS
+        if(input.RotationInput!=0 || input.ForwardInput != 0)
+        {
+            isMoving = true;
+            move = new Vector3(input.RotationInput, 0, input.ForwardInput);
+            rb.MovePosition(transform.position + transform.TransformDirection(move) * Time.deltaTime * pSpeed);
+        }
+        else
+        {
+            isMoving = false;
+        }
 
-
+        
           
         //Rotate
 

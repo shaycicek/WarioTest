@@ -1,27 +1,19 @@
 using UnityEngine;
 
-namespace RPGCharacterAnimsFREE.Actions
+namespace RPGCharacterAnims.Actions
 {
     public class SlowTime : BaseActionHandler<float>
     {
         public override bool CanStartAction(RPGCharacterController controller)
-        {
-            return !active;
-        }
+        { return !active; }
 
         public override bool CanEndAction(RPGCharacterController controller)
-        {
-            return active;
-        }
+        { return active; }
 
         protected override void _StartAction(RPGCharacterController controller, float context)
-        {
-            Time.timeScale = context;
-        }
+        { Time.timeScale = context; }
 
         protected override void _EndAction(RPGCharacterController controller)
-        {
-            Time.timeScale = 1f;
-        }
+        { Time.timeScale = 1f; }
     }
 }

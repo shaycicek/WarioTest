@@ -5,7 +5,7 @@ using UnityEngine;
 public class AiCollision : MonoBehaviour
 {
     public GameObject aiEnemy;
-    public GameObject enemyCapsule;
+    
     public int aiHealth ;
     // Start is called before the first frame update
     void Start()
@@ -14,7 +14,7 @@ public class AiCollision : MonoBehaviour
     }
 
 
-    void FixedUpdate()
+    void Update()
     {
         if(aiHealth<=0)
         {

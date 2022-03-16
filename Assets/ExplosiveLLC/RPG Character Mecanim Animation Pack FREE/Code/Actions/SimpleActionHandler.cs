@@ -1,6 +1,6 @@
 using System;
 
-namespace RPGCharacterAnimsFREE.Actions
+namespace RPGCharacterAnims.Actions
 {
     /// <summary>
     /// SimpleActionHandler is used when you need a handler with an off and on state. Its only
@@ -16,14 +16,10 @@ namespace RPGCharacterAnimsFREE.Actions
         }
 
         public override bool CanStartAction(RPGCharacterController controller)
-        {
-            return !active;
-        }
+        { return !active; }
 
         public override bool CanEndAction(RPGCharacterController controller)
-        {
-            return active;
-        }
+        { return active; }
 
         protected override void _StartAction(RPGCharacterController controller, EmptyContext context) { }
 

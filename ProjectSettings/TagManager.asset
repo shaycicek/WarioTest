@@ -8,6 +8,8 @@ TagManager:
   - Enemy
   - Collide
   - FriendlySoldier
+  - P1
+  - SoldierBag
   layers:
   - Default
   - TransparentFX

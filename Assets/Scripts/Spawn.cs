@@ -4,17 +4,14 @@ using UnityEngine;
 
 public class Spawn : MonoBehaviour
 {
+    public float spawnInterval = 10;
+
+
     //Parents
     public GameObject enemyParent;
     public GameObject soldierParent;
     // Transforms
-    public Transform Enemy;
-
-    //Clones
-    public GameObject aiClone;
-    public GameObject clone;
-    public GameObject soldierClone;
-    
+    public Transform Enemy;    
     //Prefabs
     public GameObject EnemyPrefab;
     public GameObject SoldierPrefab;
@@ -26,18 +23,16 @@ public class Spawn : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        StartCoroutine(nameof(spawnRoutine));
         randomPos = Random.insideUnitCircle * Radius;
         randomPos.y = 1;
-        aiClone = Instantiate(EnemyPrefab, randomPos, Quaternion.identity);
-        aiClone.SetActive(false);
 
     }
 
     // Update is called once per frame
     void Update()
     {
-        timer += Time.deltaTime;
+        /* timer += Time.deltaTime;
         timer = (int)System.Math.Ceiling(timer);
         
         if ((timer/100)%10 == 0)
@@ -45,7 +40,7 @@ public class Spawn : MonoBehaviour
             SpawnEnemyAtRandom();
             SpawnSoldierAtRandom();
             //ItemPrefab.transform.parent = Enemy.parent;
-        }
+        } */
 
     }
      
@@ -53,7 +48,8 @@ public class Spawn : MonoBehaviour
     {
         randomPos =Random.insideUnitCircle * Radius;
         randomPos.y = 1;
-        clone = Instantiate(aiClone, randomPos, Quaternion.identity);
+        GameObject clone;
+        clone = Instantiate(EnemyPrefab, randomPos, Quaternion.identity);
         clone.transform.parent = enemyParent.transform;
         clone.SetActive(true);
     }
@@ -62,9 +58,23 @@ public class Spawn : MonoBehaviour
     {
         randomPos = Random.insideUnitCircle * Radius;
         randomPos.y = 1;
+        GameObject soldierClone;
         soldierClone = Instantiate(SoldierPrefab, randomPos, Quaternion.identity);
         soldierClone.transform.parent = soldierParent.transform;
         soldierClone.SetActive(true);
+        
+    }
+
+
+    private IEnumerator spawnRoutine()
+    {
+        while (true)
+        {
+            SpawnEnemyAtRandom();
+            SpawnSoldierAtRandom();
+            yield return new WaitForSeconds(spawnInterval);
+
+        }
     }
 
 }

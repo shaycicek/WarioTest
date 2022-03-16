@@ -1,17 +1,18 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1011 &101100000
+--- !u!319 &101100000
 AvatarMask:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_Name: RPG-Character-Upperbody-AvatarMask
   m_Mask: 00000000010000000100000000000000000000000100000001000000010000000100000000000000000000000100000001000000
   m_Elements:
   - m_Path: 
     m_Weight: 1
   - m_Path: Motion
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: Motion/B_Pelvis
     m_Weight: 0
   - m_Path: Motion/B_Pelvis/B_L_Thigh
@@ -31,7 +32,7 @@ AvatarMask:
   - m_Path: Motion/B_Pelvis/B_R_Thigh/B_R_Calf/B_R_Foot/B_R_Toe0
     m_Weight: 0
   - m_Path: Motion/B_Pelvis/B_Spine
-    m_Weight: 1
+    m_Weight: 0
   - m_Path: Motion/B_Pelvis/B_Spine/B_Spine1
     m_Weight: 1
   - m_Path: Motion/B_Pelvis/B_Spine/B_Spine1/B_Spine2
@@ -117,4 +118,4 @@ AvatarMask:
   - m_Path: Motion/B_Pelvis/B_Spine/B_Spine1/B_Spine2/B_R_Clavicle/B_R_UpperArm/B_R_Forearm/B_R_Hand/B_R_Finger4/B_R_Finger41/B_R_Finger42
     m_Weight: 1
   - m_Path: RPG-Character-Mesh
-    m_Weight: 1
+    m_Weight: 0

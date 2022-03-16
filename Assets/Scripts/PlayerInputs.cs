@@ -19,8 +19,6 @@ public class PlayerInputs : MonoBehaviour
     // Start is called before the first frame update
     public Camera camera;
 
-    private Vector3 reticlePosition;
-
     // Update is called once per frame
     void Update()
     {

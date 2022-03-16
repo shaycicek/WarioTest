@@ -5,16 +5,16 @@ m_ProjectFiles:
     m_ContentTrackingEnabled: 1
     m_ModificationDate:
       serializedVersion: 2
-      ticks: 637758859010686226
-    m_Hash: 3588367234
+      ticks: 637816512497845720
+    m_Hash: 420261277
   m_LockFileStatus:
     m_FilePath: D:/Unity Projects/Wario/Packages/packages-lock.json
     m_PathExists: 1
     m_ContentTrackingEnabled: 1
     m_ModificationDate:
       serializedVersion: 2
-      ticks: 637758859488788612
-    m_Hash: 1956161854
+      ticks: 637816512498962738
+    m_Hash: 3788312642
 m_EmbeddedPackageManifests:
   m_ManifestsStatus: {}
 m_LocalPackages:
@@ -281,9 +281,11 @@ m_ResolvedPackages:
     - 3.6.11
     - 3.6.12
     - 3.7.1
+    - 3.8.1
     compatible:
     - 3.6.12
     - 3.7.1
+    - 3.8.1
     verified: 3.6.12
   dependencies:
   - name: com.unity.ugui
@@ -396,11 +398,13 @@ m_ResolvedPackages:
     - 2.8.3
     - 2.8.4
     - 2.9.0-pre.1
+    - 2.9.0-pre.6
     compatible:
     - 2.8.2
     - 2.8.3
     - 2.8.4
     - 2.9.0-pre.1
+    - 2.9.0-pre.6
     verified: 2.8.4
   dependencies: []
   resolvedDependencies: []
@@ -500,9 +504,15 @@ m_ResolvedPackages:
     - 1.14.1
     - 1.14.4
     - 1.14.7
+    - 1.14.9
+    - 1.14.12
+    - 1.14.13
     - 1.15.1
     - 1.15.4
     - 1.15.7
+    - 1.15.9
+    - 1.15.12
+    - 1.15.13
     - 2.0.0-preview.6
     - 2.0.0-preview.8
     - 2.0.0-preview.15
@@ -516,6 +526,9 @@ m_ResolvedPackages:
     compatible:
     - 1.15.4
     - 1.15.7
+    - 1.15.9
+    - 1.15.12
+    - 1.15.13
     - 2.0.0-preview.6
     - 2.0.0-preview.8
     - 2.0.0-preview.15
@@ -526,7 +539,7 @@ m_ResolvedPackages:
     - 2.1.0-preview.3
     - 2.1.0-preview.5
     - 2.1.0-preview.6
-    verified: 1.15.7
+    verified: 1.15.13
   dependencies:
   - name: com.unity.nuget.newtonsoft-json
     version: 2.0.0
@@ -572,6 +585,193 @@ m_ResolvedPackages:
     path: 
   unityLifecycle:
     version: 1.15.4
+    nextVersion: 
+- packageId: com.unity.connect.share@4.2.3
+  testable: 0
+  isDirectDependency: 1
+  version: 4.2.3
+  source: 1
+  resolvedPath: D:\Unity Projects\Wario\Library\PackageCache\com.unity.connect.share@4.2.3
+  assetPath: Packages/com.unity.connect.share
+  name: com.unity.connect.share
+  displayName: WebGL Publisher
+  author:
+    name: 
+    email: 
+    url: 
+  category: 
+  type: 
+  description: This tool allows you to make a WebGL build of your current project
+    and upload it to Unity's website, where it can be shared with others.
+  status: 4
+  errors: []
+  versions:
+    all:
+    - 1.0.0-preview
+    - 1.0.1-preview
+    - 1.0.2-preview
+    - 1.0.3-preview
+    - 1.0.4-preview
+    - 1.0.5-preview
+    - 1.0.6-preview.2
+    - 1.0.7-preview
+    - 1.0.8-preview
+    - 1.0.9-preview
+    - 1.0.10-preview
+    - 1.1.0-preview.1
+    - 1.2.0-preview.1
+    - 2.0.1-preview
+    - 2.0.2-preview.3
+    - 2.0.2-preview.4
+    - 2.0.3
+    - 2.0.5
+    - 2.0.6
+    - 2.1.0
+    - 3.0.0
+    - 4.0.1
+    - 4.0.2
+    - 4.0.3
+    - 4.1.0
+    - 4.1.1
+    - 4.2.1
+    - 4.2.2
+    - 4.2.3
+    compatible:
+    - 4.2.2
+    - 4.2.3
+    verified: 4.2.3
+  dependencies:
+  - name: com.unity.editorcoroutines
+    version: 1.0.0
+  - name: com.unity.settings-manager
+    version: 1.0.2
+  resolvedDependencies:
+  - name: com.unity.editorcoroutines
+    version: 1.0.0
+  - name: com.unity.settings-manager
+    version: 1.0.3
+  keywords:
+  - webgl
+  - share
+  - connect
+  registry:
+    id: main
+    name: 
+    url: https://packages.unity.com
+    scopes: []
+    isDefault: 1
+    capabilities: 7
+  hideInEditor: 1
+  isAssetStorePackage: 0
+  datePublishedTicks: 637695698090000000
+  documentationUrl: 
+  hasRepository: 1
+  repository:
+    type: git
+    url: https://github.cds.internal.unity3d.com/unity/com.unity.connect.share.git
+    revision: 9a66a825d48494378f81fc94289eddd505df1c40
+    path: 
+  unityLifecycle:
+    version: 4.2.2
+    nextVersion: 
+- packageId: com.unity.feature.characters-animation@1.0.0
+  testable: 0
+  isDirectDependency: 1
+  version: 1.0.0
+  source: 2
+  resolvedPath: D:\Unity Projects\Wario\Library\PackageCache\com.unity.feature.characters-animation@1.0.0
+  assetPath: Packages/com.unity.feature.characters-animation
+  name: com.unity.feature.characters-animation
+  displayName: 3D Characters and Animation
+  author:
+    name: 
+    email: 
+    url: 
+  category: 
+  type: feature
+  description: 'Animate characters and create cutscenes with the Characters and Animation
+    feature set.
+
+
+    Build interactive character rigs and constraints to animate
+    characters and GameObjects.
+
+    Arrange tracks and clips to create gameplay
+    sequences, cutscenes, or movies.
+
+    Orchestrate, shoot, and record beautiful
+    narratives for cutscenes or movies.
+
+    Easily round-trip to your 3D modeling
+    software'
+  status: 4
+  errors: []
+  versions:
+    all:
+    - 1.0.0
+    compatible:
+    - 1.0.0
+    verified: 1.0.0
+  dependencies:
+  - name: com.unity.animation.rigging
+    version: default
+  - name: com.unity.timeline
+    version: default
+  - name: com.unity.cinemachine
+    version: default
+  - name: com.unity.formats.fbx
+    version: default
+  resolvedDependencies:
+  - name: com.unity.animation.rigging
+    version: 1.1.1
+  - name: com.unity.burst
+    version: 1.6.0
+  - name: com.unity.mathematics
+    version: 1.2.5
+  - name: com.unity.test-framework
+    version: 1.1.29
+  - name: com.unity.ext.nunit
+    version: 1.0.6
+  - name: com.unity.modules.imgui
+    version: 1.0.0
+  - name: com.unity.modules.jsonserialize
+    version: 1.0.0
+  - name: com.unity.timeline
+    version: 1.6.3
+  - name: com.unity.modules.director
+    version: 1.0.0
+  - name: com.unity.modules.audio
+    version: 1.0.0
+  - name: com.unity.modules.animation
+    version: 1.0.0
+  - name: com.unity.modules.particlesystem
+    version: 1.0.0
+  - name: com.unity.cinemachine
+    version: 2.8.2
+  - name: com.unity.formats.fbx
+    version: 4.1.1
+  - name: com.autodesk.fbx
+    version: 4.1.1
+  keywords: []
+  registry:
+    id: main
+    name: 
+    url: https://packages.unity.com
+    scopes: []
+    isDefault: 1
+    capabilities: 7
+  hideInEditor: 0
+  isAssetStorePackage: 0
+  datePublishedTicks: 0
+  documentationUrl: 
+  hasRepository: 0
+  repository:
+    type: 
+    url: 
+    revision: 
+    path: 
+  unityLifecycle:
+    version: 1.0.0
     nextVersion: 
 - packageId: com.unity.ide.rider@3.0.7
   testable: 0
@@ -620,9 +820,15 @@ m_ResolvedPackages:
     - 3.0.5
     - 3.0.6
     - 3.0.7
+    - 3.0.9
+    - 3.0.10
+    - 3.0.12
     compatible:
     - 3.0.7
-    verified: 3.0.7
+    - 3.0.9
+    - 3.0.10
+    - 3.0.12
+    verified: 3.0.12
   dependencies:
   - name: com.unity.ext.nunit
     version: 1.0.6
@@ -672,10 +878,27 @@ m_ResolvedPackages:
   errors: []
   versions:
     all:
+    - 1.0.2
+    - 1.0.3
+    - 1.0.4
+    - 1.0.9
+    - 1.0.10
+    - 1.0.11
+    - 2.0.0
+    - 2.0.1
+    - 2.0.2
+    - 2.0.3
+    - 2.0.5
+    - 2.0.7
+    - 2.0.8
+    - 2.0.9
+    - 2.0.11
     - 2.0.12
+    - 2.0.14
     compatible:
     - 2.0.12
-    verified: 2.0.12
+    - 2.0.14
+    verified: 2.0.14
   dependencies:
   - name: com.unity.test-framework
     version: 1.1.9
@@ -698,7 +921,7 @@ m_ResolvedPackages:
     capabilities: 7
   hideInEditor: 1
   isAssetStorePackage: 0
-  datePublishedTicks: 0
+  datePublishedTicks: 637720564750000000
   documentationUrl: 
   hasRepository: 1
   repository:
@@ -743,9 +966,11 @@ m_ResolvedPackages:
     - 1.2.2
     - 1.2.3
     - 1.2.4
+    - 1.2.5
     compatible:
     - 1.2.4
-    verified: 1.2.4
+    - 1.2.5
+    verified: 1.2.5
   dependencies: []
   resolvedDependencies: []
   keywords: []
@@ -848,10 +1073,12 @@ m_ResolvedPackages:
     - 4.1.0
     - 4.1.1
     - 4.1.2
+    - 4.1.3
     compatible:
     - 4.1.1
     - 4.1.2
-    verified: 4.1.2
+    - 4.1.3
+    verified: 4.1.3
   dependencies:
   - name: com.unity.ugui
     version: 1.0.0
@@ -958,10 +1185,16 @@ m_ResolvedPackages:
     - 1.1.27
     - 1.1.29
     - 1.1.30
+    - 1.1.31
+    - 2.0.1-pre.12
+    - 2.0.1-pre.18
     compatible:
     - 1.1.29
     - 1.1.30
-    verified: 1.1.30
+    - 1.1.31
+    - 2.0.1-pre.12
+    - 2.0.1-pre.18
+    verified: 1.1.31
   dependencies:
   - name: com.unity.ext.nunit
     version: 1.0.6
@@ -1249,11 +1482,15 @@ m_ResolvedPackages:
     - 1.6.1
     - 1.6.2
     - 1.6.3
+    - 1.6.4
     - 1.7.0-pre.1
+    - 1.7.0-pre.2
     compatible:
     - 1.6.3
+    - 1.6.4
     - 1.7.0-pre.1
-    verified: 1.6.3
+    - 1.7.0-pre.2
+    verified: 1.6.4
   dependencies:
   - name: com.unity.modules.director
     version: 1.0.0
@@ -1408,9 +1645,11 @@ m_ResolvedPackages:
     - 2.1.6
     - 2.1.7
     - 2.1.8
+    - 2.1.9
     compatible:
     - 2.1.8
-    verified: 2.1.8
+    - 2.1.9
+    verified: 2.1.9
   dependencies:
   - name: com.unity.modules.vr
     version: 1.0.0
@@ -3214,9 +3453,16 @@ m_ResolvedPackages:
   errors: []
   versions:
     all:
+    - 0.1.5-preview
+    - 0.1.6-preview
+    - 0.1.9-preview
+    - 1.0.0
+    - 1.0.5
     - 1.0.6
+    - 2.0.2
     compatible:
     - 1.0.6
+    - 2.0.2
     verified: 1.0.6
   dependencies: []
   resolvedDependencies: []
@@ -3233,7 +3479,7 @@ m_ResolvedPackages:
     capabilities: 7
   hideInEditor: 1
   isAssetStorePackage: 0
-  datePublishedTicks: 0
+  datePublishedTicks: 637429759280000000
   documentationUrl: 
   hasRepository: 1
   repository:
@@ -3269,8 +3515,24 @@ m_ResolvedPackages:
   versions:
     all:
     - 1.0.1
+    - 1.1.0-pre.7
+    - 1.1.0-pre.8
+    - 1.1.0-pre.9
+    - 1.1.0-pre.10
+    - 1.1.0-pre.11
+    - 1.1.0-pre.41
+    - 1.1.0-pre.69
+    - 1.2.0
     compatible:
     - 1.0.1
+    - 1.1.0-pre.7
+    - 1.1.0-pre.8
+    - 1.1.0-pre.9
+    - 1.1.0-pre.10
+    - 1.1.0-pre.11
+    - 1.1.0-pre.41
+    - 1.1.0-pre.69
+    - 1.2.0
     verified: 1.0.1
   dependencies:
   - name: com.unity.modules.unitywebrequest
@@ -3288,7 +3550,7 @@ m_ResolvedPackages:
     capabilities: 7
   hideInEditor: 1
   isAssetStorePackage: 0
-  datePublishedTicks: 0
+  datePublishedTicks: 637604883250000000
   documentationUrl: 
   hasRepository: 1
   repository:
@@ -3299,6 +3561,294 @@ m_ResolvedPackages:
   unityLifecycle:
     version: 1.0.1
     nextVersion: 1.1.0-pre.8
+- packageId: com.unity.animation.rigging@1.1.1
+  testable: 0
+  isDirectDependency: 0
+  version: 1.1.1
+  source: 1
+  resolvedPath: D:\Unity Projects\Wario\Library\PackageCache\com.unity.animation.rigging@1.1.1
+  assetPath: Packages/com.unity.animation.rigging
+  name: com.unity.animation.rigging
+  displayName: Animation Rigging
+  author:
+    name: 
+    email: 
+    url: 
+  category: Animation
+  type: 
+  description: Animation Rigging toolkit using Unity's Animation C# Jobs
+  status: 4
+  errors: []
+  versions:
+    all:
+    - 0.1.2-preview
+    - 0.1.4-preview
+    - 0.2.1-preview
+    - 0.2.2-preview
+    - 0.2.3-preview
+    - 0.2.5-preview
+    - 0.2.6-preview
+    - 0.2.7-preview
+    - 0.3.2-preview
+    - 0.3.3-preview
+    - 0.3.4-preview
+    - 1.0.2
+    - 1.0.3
+    - 1.1.0
+    - 1.1.1
+    compatible:
+    - 1.1.1
+    verified: 1.1.1
+  dependencies:
+  - name: com.unity.burst
+    version: 1.4.1
+  - name: com.unity.test-framework
+    version: 1.1.24
+  resolvedDependencies:
+  - name: com.unity.burst
+    version: 1.6.0
+  - name: com.unity.mathematics
+    version: 1.2.5
+  - name: com.unity.test-framework
+    version: 1.1.29
+  - name: com.unity.ext.nunit
+    version: 1.0.6
+  - name: com.unity.modules.imgui
+    version: 1.0.0
+  - name: com.unity.modules.jsonserialize
+    version: 1.0.0
+  keywords:
+  - Animation
+  - Rigging
+  - Constraints
+  registry:
+    id: main
+    name: 
+    url: https://packages.unity.com
+    scopes: []
+    isDefault: 1
+    capabilities: 7
+  hideInEditor: 1
+  isAssetStorePackage: 0
+  datePublishedTicks: 637654220820000000
+  documentationUrl: 
+  hasRepository: 1
+  repository:
+    type: git
+    url: https://github.cds.internal.unity3d.com/unity/com.unity.animation.rigging.git
+    revision: 10dba535768924f8d1af27adcce2a1ff06c44474
+    path: 
+  unityLifecycle:
+    version: 1.1.1
+    nextVersion: 
+- packageId: com.unity.formats.fbx@4.1.1
+  testable: 0
+  isDirectDependency: 0
+  version: 4.1.1
+  source: 1
+  resolvedPath: D:\Unity Projects\Wario\Library\PackageCache\com.unity.formats.fbx@4.1.1
+  assetPath: Packages/com.unity.formats.fbx
+  name: com.unity.formats.fbx
+  displayName: FBX Exporter
+  author:
+    name: 
+    email: 
+    url: 
+  category: 
+  type: 
+  description: "The Unity FBX Exporter package makes it easy to send geometry and
+    animation to any application that supports the FBX format and send them back
+    to Unity with minimal effort.\n\nIn particular, this round-trip workflow enables
+    you to export Unity Scenes to FBX files, import them into Autodesk\xAE Maya\xAE,
+    Autodesk\xAE Maya LT\u2122, or Autodesk\xAE 3ds Max\xAE using an artist-friendly
+    interface, export Unity-ready FBX geometry and animation, and safely merge your
+    changes back into those Assets to continue your work in Unity."
+  status: 4
+  errors: []
+  versions:
+    all:
+    - 2.0.1-preview.2
+    - 2.0.1-preview.3
+    - 2.0.1-preview.4
+    - 2.0.1-preview.5
+    - 2.0.1-preview.11
+    - 2.0.2-preview.1
+    - 2.0.3-preview.3
+    - 3.0.0-preview.2
+    - 3.0.1-preview.2
+    - 3.1.0-preview.1
+    - 3.2.0-preview.2
+    - 3.2.1-preview.2
+    - 4.0.0-pre.1
+    - 4.0.0-pre.4
+    - 4.0.1
+    - 4.1.0-pre.2
+    - 4.1.0
+    - 4.1.1
+    - 4.1.2
+    compatible:
+    - 4.1.1
+    - 4.1.2
+    verified: 4.1.2
+  dependencies:
+  - name: com.unity.timeline
+    version: 1.5.2
+  - name: com.autodesk.fbx
+    version: 4.1.1
+  resolvedDependencies:
+  - name: com.unity.timeline
+    version: 1.6.3
+  - name: com.unity.modules.director
+    version: 1.0.0
+  - name: com.unity.modules.audio
+    version: 1.0.0
+  - name: com.unity.modules.animation
+    version: 1.0.0
+  - name: com.unity.modules.particlesystem
+    version: 1.0.0
+  - name: com.autodesk.fbx
+    version: 4.1.1
+  keywords:
+  - fbx
+  - animation
+  - modeling
+  - maya
+  - max
+  registry:
+    id: main
+    name: 
+    url: https://packages.unity.com
+    scopes: []
+    isDefault: 1
+    capabilities: 7
+  hideInEditor: 1
+  isAssetStorePackage: 0
+  datePublishedTicks: 637668642510000000
+  documentationUrl: 
+  hasRepository: 1
+  repository:
+    type: git
+    url: git+https://github.com/Unity-Technologies/com.unity.formats.fbx.git
+    revision: 4371f27a9aa5aac3fac66176a5b0052edb26e85d
+    path: 
+  unityLifecycle:
+    version: 4.1.1
+    nextVersion: 
+- packageId: com.unity.editorcoroutines@1.0.0
+  testable: 0
+  isDirectDependency: 0
+  version: 1.0.0
+  source: 1
+  resolvedPath: D:\Unity Projects\Wario\Library\PackageCache\com.unity.editorcoroutines@1.0.0
+  assetPath: Packages/com.unity.editorcoroutines
+  name: com.unity.editorcoroutines
+  displayName: Editor Coroutines
+  author:
+    name: 
+    email: 
+    url: 
+  category: 
+  type: 
+  description: 'The editor coroutines package allows developers to start constructs
+    similar to Unity''s monobehaviour based coroutines within the editor using abitrary
+    objects. '
+  status: 4
+  errors: []
+  versions:
+    all:
+    - 0.0.1-preview.3
+    - 0.0.1-preview.4
+    - 0.0.1-preview.5
+    - 0.0.2-preview.1
+    - 0.1.0-preview.1
+    - 0.1.0-preview.2
+    - 1.0.0
+    compatible:
+    - 1.0.0
+    verified: 1.0.0
+  dependencies: []
+  resolvedDependencies: []
+  keywords:
+  - coroutine
+  - coroutines
+  - editor
+  registry:
+    id: main
+    name: 
+    url: https://packages.unity.com
+    scopes: []
+    isDefault: 1
+    capabilities: 7
+  hideInEditor: 1
+  isAssetStorePackage: 0
+  datePublishedTicks: 637232611380000000
+  documentationUrl: 
+  hasRepository: 1
+  repository:
+    type: git
+    url: https://github.cds.internal.unity3d.com/unity/com.unity.editorcoroutines.git
+    revision: f67fc9992bbc7a553b17375de53a8b2db136528e
+    path: 
+  unityLifecycle:
+    version: 1.0.0
+    nextVersion: 
+- packageId: com.unity.settings-manager@1.0.3
+  testable: 0
+  isDirectDependency: 0
+  version: 1.0.3
+  source: 1
+  resolvedPath: D:\Unity Projects\Wario\Library\PackageCache\com.unity.settings-manager@1.0.3
+  assetPath: Packages/com.unity.settings-manager
+  name: com.unity.settings-manager
+  displayName: Settings Manager
+  author:
+    name: 
+    email: 
+    url: 
+  category: 
+  type: 
+  description: A framework for making any serializable field a setting, complete
+    with a pre-built settings interface.
+  status: 4
+  errors: []
+  versions:
+    all:
+    - 0.1.0-preview.4
+    - 0.1.0-preview.8
+    - 1.0.0
+    - 1.0.1
+    - 1.0.2
+    - 1.0.3
+    - 2.0.0
+    - 2.0.1
+    compatible:
+    - 1.0.3
+    - 2.0.0
+    - 2.0.1
+    verified: 1.0.3
+  dependencies: []
+  resolvedDependencies: []
+  keywords: []
+  registry:
+    id: main
+    name: 
+    url: https://packages.unity.com
+    scopes: []
+    isDefault: 1
+    capabilities: 7
+  hideInEditor: 1
+  isAssetStorePackage: 0
+  datePublishedTicks: 637300096300000000
+  documentationUrl: 
+  hasRepository: 1
+  repository:
+    type: git
+    url: git+https://github.com/Unity-Technologies/com.unity.settings-manager.git
+    revision: 473664ccba1496294b741cf169740a5d54b3d0b6
+    path: 
+  unityLifecycle:
+    version: 1.0.3
+    nextVersion: 
 - packageId: com.unity.nuget.newtonsoft-json@2.0.0
   testable: 0
   isDirectDependency: 0
@@ -3313,7 +3863,7 @@ m_ResolvedPackages:
     email: 
     url: 
   category: 
-  type: library
+  type: 
   description: 'Newtonsoft Json for use in Unity projects and Unity packages. Currently
     synced to version 12.0.2.
 
@@ -3328,10 +3878,24 @@ m_ResolvedPackages:
   errors: []
   versions:
     all:
+    - 1.0.0-preview.2
+    - 1.0.0-preview.3
+    - 1.0.0-preview.4
+    - 1.0.1-preview.1
+    - 1.1.2
+    - 2.0.0-preview
+    - 2.0.0-preview.1
+    - 2.0.0-preview.2
     - 2.0.0
+    - 2.0.1-preview.1
+    - 2.0.2
+    - 3.0.1
     compatible:
     - 2.0.0
-    verified: 2.0.0
+    - 2.0.1-preview.1
+    - 2.0.2
+    - 3.0.1
+    verified: 2.0.2
   dependencies: []
   resolvedDependencies: []
   keywords: []
@@ -3344,7 +3908,7 @@ m_ResolvedPackages:
     capabilities: 7
   hideInEditor: 1
   isAssetStorePackage: 0
-  datePublishedTicks: 0
+  datePublishedTicks: 637237898320000000
   documentationUrl: 
   hasRepository: 1
   repository:
@@ -3354,4 +3918,299 @@ m_ResolvedPackages:
     path: 
   unityLifecycle:
     version: 2.0.0
+    nextVersion: 
+- packageId: com.autodesk.fbx@4.1.1
+  testable: 0
+  isDirectDependency: 0
+  version: 4.1.1
+  source: 1
+  resolvedPath: D:\Unity Projects\Wario\Library\PackageCache\com.autodesk.fbx@4.1.1
+  assetPath: Packages/com.autodesk.fbx
+  name: com.autodesk.fbx
+  displayName: Autodesk FBX SDK for Unity
+  author:
+    name: Unity
+    email: 
+    url: 
+  category: 
+  type: 
+  description: "This package provides Unity C# bindings to the Autodesk\xAE FBX\xAE
+    SDK."
+  status: 4
+  errors: []
+  versions:
+    all:
+    - 2.0.0-preview
+    - 2.0.0-preview.4
+    - 2.0.0-preview.5
+    - 2.0.0-preview.6
+    - 2.0.0-preview.7
+    - 2.0.1-preview.1
+    - 3.0.0-preview.1
+    - 3.0.1-preview.1
+    - 3.1.0-preview.1
+    - 3.1.0-preview.2
+    - 4.0.0-pre.1
+    - 4.0.0-pre.2
+    - 4.0.1
+    - 4.1.0-pre.1
+    - 4.1.0
+    - 4.1.1
+    compatible:
+    - 4.1.1
+    verified: 4.1.1
+  dependencies: []
+  resolvedDependencies: []
+  keywords:
+  - fbx
+  - animation
+  - modeling
+  - maya
+  - max
+  registry:
+    id: main
+    name: 
+    url: https://packages.unity.com
+    scopes: []
+    isDefault: 1
+    capabilities: 7
+  hideInEditor: 1
+  isAssetStorePackage: 0
+  datePublishedTicks: 637668642230000000
+  documentationUrl: 
+  hasRepository: 1
+  repository:
+    type: git
+    url: git+https://github.com/Unity-Technologies/com.autodesk.fbx.git
+    revision: b6cd1211ff8824752e3dcbf05f426bac266606a0
+    path: 
+  unityLifecycle:
+    version: 4.1.1
+    nextVersion: 
+- packageId: com.unity.burst@1.6.0
+  testable: 0
+  isDirectDependency: 0
+  version: 1.6.0
+  source: 1
+  resolvedPath: D:\Unity Projects\Wario\Library\PackageCache\com.unity.burst@1.6.0
+  assetPath: Packages/com.unity.burst
+  name: com.unity.burst
+  displayName: Burst
+  author:
+    name: 
+    email: 
+    url: 
+  category: 
+  type: 
+  description: Burst is a compiler that translates from IL/.NET bytecode to highly
+    optimized native code using LLVM.
+  status: 4
+  errors: []
+  versions:
+    all:
+    - 0.2.4-preview.5
+    - 0.2.4-preview.7
+    - 0.2.4-preview.11
+    - 0.2.4-preview.12
+    - 0.2.4-preview.13
+    - 0.2.4-preview.14
+    - 0.2.4-preview.15
+    - 0.2.4-preview.16
+    - 0.2.4-preview.17
+    - 0.2.4-preview.18
+    - 0.2.4-preview.19
+    - 0.2.4-preview.20
+    - 0.2.4-preview.21
+    - 0.2.4-preview.22
+    - 0.2.4-preview.23
+    - 0.2.4-preview.24
+    - 0.2.4-preview.25
+    - 0.2.4-preview.30
+    - 0.2.4-preview.31
+    - 0.2.4-preview.33
+    - 0.2.4-preview.34
+    - 0.2.4-preview.37
+    - 0.2.4-preview.41
+    - 0.2.4-preview.45
+    - 0.2.4-preview.48
+    - 0.2.4-preview.50
+    - 1.1.0-preview.2
+    - 1.1.0-preview.3
+    - 1.1.0-preview.4
+    - 1.1.1
+    - 1.1.2
+    - 1.1.3-preview.3
+    - 1.2.0-preview.1
+    - 1.2.0-preview.5
+    - 1.2.0-preview.6
+    - 1.2.0-preview.8
+    - 1.2.0-preview.9
+    - 1.2.0-preview.10
+    - 1.2.0-preview.11
+    - 1.2.0-preview.12
+    - 1.2.0
+    - 1.2.1
+    - 1.2.2
+    - 1.2.3
+    - 1.3.0-preview.1
+    - 1.3.0-preview.2
+    - 1.3.0-preview.3
+    - 1.3.0-preview.4
+    - 1.3.0-preview.5
+    - 1.3.0-preview.6
+    - 1.3.0-preview.7
+    - 1.3.0-preview.8
+    - 1.3.0-preview.9
+    - 1.3.0-preview.10
+    - 1.3.0-preview.11
+    - 1.3.0-preview.12
+    - 1.3.0-preview.13
+    - 1.3.0
+    - 1.3.1
+    - 1.3.2
+    - 1.3.3
+    - 1.3.4
+    - 1.3.5
+    - 1.3.6
+    - 1.3.7
+    - 1.3.8
+    - 1.3.9
+    - 1.4.0-pre.1
+    - 1.4.0-preview.1
+    - 1.4.0-preview.2
+    - 1.4.0-preview.3
+    - 1.4.0-preview.4
+    - 1.4.0-preview.5
+    - 1.4.1-pre.1
+    - 1.4.1-pre.2
+    - 1.4.1
+    - 1.4.2
+    - 1.4.3
+    - 1.4.4-preview.1
+    - 1.4.4-preview.2
+    - 1.4.4
+    - 1.4.5
+    - 1.4.6
+    - 1.4.7
+    - 1.4.8
+    - 1.4.9
+    - 1.4.11
+    - 1.5.0-pre.3
+    - 1.5.0-pre.4
+    - 1.5.0-pre.5
+    - 1.5.0
+    - 1.5.1
+    - 1.5.2
+    - 1.5.3
+    - 1.5.4
+    - 1.5.5
+    - 1.5.6-preview.1
+    - 1.5.6
+    - 1.6.0-pre.2
+    - 1.6.0-pre.3
+    - 1.6.0-pre.4
+    - 1.6.0
+    - 1.6.1
+    - 1.6.2
+    - 1.6.3
+    - 1.6.4
+    - 1.7.0-pre.1
+    compatible:
+    - 1.6.0
+    - 1.6.1
+    - 1.6.2
+    - 1.6.3
+    - 1.6.4
+    - 1.7.0-pre.1
+    verified: 1.6.4
+  dependencies:
+  - name: com.unity.mathematics
+    version: 1.2.1
+  resolvedDependencies:
+  - name: com.unity.mathematics
+    version: 1.2.5
+  keywords: []
+  registry:
+    id: main
+    name: 
+    url: https://packages.unity.com
+    scopes: []
+    isDefault: 1
+    capabilities: 7
+  hideInEditor: 1
+  isAssetStorePackage: 0
+  datePublishedTicks: 637661043940000000
+  documentationUrl: 
+  hasRepository: 1
+  repository:
+    type: git
+    url: https://github.cds.internal.unity3d.com/unity/burst.git
+    revision: 405e9582b7e75a1a9e6f8dcaf4c2dc97d441ae68
+    path: 
+  unityLifecycle:
+    version: 1.6.0
+    nextVersion: 
+- packageId: com.unity.mathematics@1.2.5
+  testable: 0
+  isDirectDependency: 0
+  version: 1.2.5
+  source: 1
+  resolvedPath: D:\Unity Projects\Wario\Library\PackageCache\com.unity.mathematics@1.2.5
+  assetPath: Packages/com.unity.mathematics
+  name: com.unity.mathematics
+  displayName: Mathematics
+  author:
+    name: 
+    email: 
+    url: 
+  category: 
+  type: 
+  description: Unity's C# SIMD math library providing vector types and math functions
+    with a shader like syntax.
+  status: 4
+  errors: []
+  versions:
+    all:
+    - 0.0.12-preview.2
+    - 0.0.12-preview.5
+    - 0.0.12-preview.8
+    - 0.0.12-preview.10
+    - 0.0.12-preview.11
+    - 0.0.12-preview.13
+    - 0.0.12-preview.17
+    - 0.0.12-preview.19
+    - 0.0.12-preview.20
+    - 1.0.0-preview.1
+    - 1.0.1
+    - 1.1.0-preview.1
+    - 1.1.0
+    - 1.2.1
+    - 1.2.4
+    - 1.2.5
+    compatible:
+    - 1.2.5
+    verified: 1.2.5
+  dependencies: []
+  resolvedDependencies: []
+  keywords:
+  - unity
+  registry:
+    id: main
+    name: 
+    url: https://packages.unity.com
+    scopes: []
+    isDefault: 1
+    capabilities: 7
+  hideInEditor: 1
+  isAssetStorePackage: 0
+  datePublishedTicks: 637719892670000000
+  documentationUrl: 
+  hasRepository: 1
+  repository:
+    type: git
+    url: https://github.com/Unity-Technologies/Unity.Mathematics.git
+    revision: 53b0c4756c3c0dff3746285a8b83e858c26cdb06
+    path: 
+  unityLifecycle:
+    version: 1.2.5
     nextVersion: 

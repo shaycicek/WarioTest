@@ -42,9 +42,7 @@ public static class SuperMath
 	/// Checks if the duration since start time has elapsed.
 	/// </summary>
 	public static bool Timer(float startTime, float duration)
-	{
-		return Time.time > startTime + duration;
-	}
+	{ return Time.time > startTime + duration; }
 
 	public static float ClampAngle(float angle)
 	{
@@ -55,7 +53,5 @@ public static class SuperMath
 	}
 
 	public static float CalculateJumpSpeed(float jumpHeight, float gravity)
-	{
-		return Mathf.Sqrt(2 * jumpHeight * gravity);
-	}
+	{ return Mathf.Sqrt(2 * jumpHeight * gravity); }
 }

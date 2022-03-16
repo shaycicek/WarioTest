@@ -1,7 +1,6 @@
-using System.Collections;
-using UnityEngine;
+using RPGCharacterAnims.Lookups;
 
-namespace RPGCharacterAnimsFREE.Actions
+namespace RPGCharacterAnims.Actions
 {
     public class Idle : MovementActionHandler<EmptyContext>
     {
@@ -17,12 +16,10 @@ namespace RPGCharacterAnimsFREE.Actions
 
         protected override void _StartAction(RPGCharacterController controller, EmptyContext context)
         {
-            movement.currentState = RPGCharacterState.Idle;
+            movement.currentState = CharacterState.Idle;
         }
 
         public override bool IsActive()
-        {
-            return movement.currentState != null && (RPGCharacterState)movement.currentState == RPGCharacterState.Idle;
-        }
+        { return movement.currentState != null && (CharacterState)movement.currentState == CharacterState.Idle; }
     }
 }
