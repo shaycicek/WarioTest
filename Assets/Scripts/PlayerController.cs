@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour
     public float pSpeed = 30f ;
     public float pRotationSpeed = 1f;
     private Rigidbody rb;
+    public Rigidbody rbModel;
     private PlayerInputs input;
     public bool isMoving;
     Vector3 move = Vector3.zero;
@@ -24,11 +25,13 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+        /*
         if(rb && input)
         {
             HandleMovement();            
         }
-
+        */
+        HandleMovement();
 
 
     }
@@ -41,11 +44,20 @@ public class PlayerController : MonoBehaviour
         rb.MovePosition(wantedPosition); */
 
         // Move SidewaysS
+        //transform.LookAt(transform.position + new Vector3(-input.ForwardInput, 0, input.RotationInput)); 
+
         if(input.RotationInput!=0 || input.ForwardInput != 0)
         {
             isMoving = true;
             move = new Vector3(input.RotationInput, 0, input.ForwardInput);
-            rb.MovePosition(transform.position + transform.TransformDirection(move) * Time.deltaTime * pSpeed);
+            rb.MovePosition(transform.position + move * Time.deltaTime * pSpeed); //transform.TransformDirection(move)
+
+            Vector3 lookTarget = transform.position + move.normalized;
+            Vector3 direction = lookTarget - transform.position;
+            Quaternion rot = Quaternion.LookRotation(direction, transform.up);
+            rbModel.rotation = rot;
+            //Quaternion wantedRotation = transform.rotation * Quaternion.Euler(Vector3.up * (pRotationSpeed * input.RotationInput * Time.deltaTime));
+
         }
         else
         {
