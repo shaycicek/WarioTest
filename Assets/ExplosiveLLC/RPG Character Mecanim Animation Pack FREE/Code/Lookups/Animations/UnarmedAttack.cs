@@ -1,7 +1,7 @@
 namespace RPGCharacterAnims.Lookups
 {
     public enum UnarmedAttack
-    {
+	{
         Unknown = 0,
         LeftAttack1 = 1,
         LeftAttack2 = 2,

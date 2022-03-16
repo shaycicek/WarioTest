@@ -48,11 +48,7 @@ namespace RPGCharacterAnims.Actions
 
 			duration = AnimationData.AttackDuration(attackSide, weaponNumber, attackNumber);
 
-			if (!controller.maintainingGround) {
-				controller.AirAttack();
-				EndAction(controller);
-			}
-			else if (controller.isMoving) {
+			if (controller.isMoving) {
 				controller.RunningAttack(
 					attackSide,
 					false,

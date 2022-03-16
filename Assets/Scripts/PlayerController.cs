@@ -39,38 +39,26 @@ public class PlayerController : MonoBehaviour
 
     public virtual void HandleMovement()
     {
-        //Move Forward
-        /* Vector3 wantedPosition = (transform.position) + (transform.forward* input.ForwardInput * pSpeed * Time.deltaTime);
-        rb.MovePosition(wantedPosition); */
+        transform.LookAt(transform.position + new Vector3(input.RotationInput, 0, input.ForwardInput ));
+        move = new Vector3(input.RotationInput, 0, input.ForwardInput).normalized;
 
-        // Move SidewaysS
-        //transform.LookAt(transform.position + new Vector3(-input.ForwardInput, 0, input.RotationInput)); 
+        rb.MovePosition(transform.position + move * Time.fixedDeltaTime * pSpeed);
 
-        if(input.RotationInput!=0 || input.ForwardInput != 0)
+        Vector3 lookTarget = transform.position + move.normalized;
+        Vector3 direction = lookTarget - transform.position;
+        Quaternion rot = Quaternion.LookRotation(direction, transform.up);
+
+        if (input.RotationInput!=0 || input.ForwardInput != 0)
         {
             isMoving = true;
-            move = new Vector3(input.RotationInput, 0, input.ForwardInput);
-            rb.MovePosition(transform.position + move * Time.deltaTime * pSpeed); //transform.TransformDirection(move)
-
-            Vector3 lookTarget = transform.position + move.normalized;
-            Vector3 direction = lookTarget - transform.position;
-            Quaternion rot = Quaternion.LookRotation(direction, transform.up);
-            rbModel.rotation = rot;
-            //Quaternion wantedRotation = transform.rotation * Quaternion.Euler(Vector3.up * (pRotationSpeed * input.RotationInput * Time.deltaTime));
+            
+            //rbModel.rotation = rot;
 
         }
         else
         {
             isMoving = false;
         }
-
-        
-          
-        //Rotate
-
-        /* Quaternion wantedRotation = transform.rotation * Quaternion.Euler(Vector3.up * (pRotationSpeed * input.RotationInput * Time.deltaTime));
-        rb.MoveRotation(wantedRotation); 
-        */
     }
 
 }

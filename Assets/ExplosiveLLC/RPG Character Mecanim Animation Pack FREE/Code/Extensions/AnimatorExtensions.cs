@@ -125,7 +125,6 @@ namespace RPGCharacterAnims.Extensions
             Debug.Log("ANIMATOR SETTINGS---------------------------");
 			Debug.Log("Moving: " + animator.GetBool(AnimationParameters.Moving));
 			Debug.Log("Aiming: " + animator.GetBool(AnimationParameters.Aiming));
-			Debug.Log("Injured: " + animator.GetBool(AnimationParameters.Injured));
 			Debug.Log($"Weapon: {animator.GetInteger(AnimationParameters.Weapon)}");
 			Debug.Log($"WeaponSwitch: {animator.GetInteger(AnimationParameters.WeaponSwitch)}");
 			Debug.Log($"Side: {animator.GetInteger(AnimationParameters.Side)}");

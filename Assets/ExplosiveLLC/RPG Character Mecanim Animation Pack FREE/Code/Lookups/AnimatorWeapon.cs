@@ -8,7 +8,7 @@ namespace RPGCharacterAnims.Lookups
 	/// ARMED.
 	/// </summary>
 	public enum AnimatorWeapon
-    {
+	{
         UNARMED = 0,
         TWOHANDSWORD = 1,
     }

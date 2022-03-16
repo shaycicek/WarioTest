@@ -232,7 +232,6 @@ namespace RPGCharacterAnims
 
             SetHandler(HandlerTypes.Attack, new Attack());
             SetHandler(HandlerTypes.Face, new SimpleActionHandler(StartFace, EndFace));
-            SetHandler(HandlerTypes.HipShoot, new SimpleActionHandler(() => { }, () => { }));
             SetHandler(HandlerTypes.Null, new Null());
             SetHandler(HandlerTypes.SlowTime, new SlowTime());
             SetHandler(HandlerTypes.Strafe, new SimpleActionHandler(StartStrafe, EndStrafe));
@@ -495,14 +494,6 @@ namespace RPGCharacterAnims
 				animator.SetActionTrigger(AnimatorTrigger.AttackTrigger, 1);
 			}
         }
-
-        /// <summary>
-        /// Trigger the air attack animation.
-        ///
-        /// Use the "Attack" action for a friendly interface.
-        /// </summary>
-        public void AirAttack()
-        { animator.SetActionTrigger(AnimatorTrigger.AttackTrigger, 1); }
 
         /// <summary>
         /// Run left and right while still facing a target.

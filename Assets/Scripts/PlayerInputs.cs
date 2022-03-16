@@ -31,8 +31,8 @@ public class PlayerInputs : MonoBehaviour
 
     protected virtual void HandleInputs()
     {
-        forwardInput = Input.GetAxis("Vertical");
-        rotationInput = Input.GetAxis("Horizontal");
+        forwardInput = Input.GetAxisRaw("Vertical");
+        rotationInput = Input.GetAxisRaw("Horizontal");
         
 
 

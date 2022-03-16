@@ -151,8 +151,7 @@ public class EnemyAi : MonoBehaviour
     {
         //Make sure enemy doesn't move
         agent.SetDestination(transform.position);
-        //shotEff.gameObject.SetActive(false);
-        shotEff.gameObject.SetActive(true);
+        
 
         // Eðer soldierList boþsa playera saldýracak deðilse önce soldier a saldýracak!
         if (p1.getSoldierListSize() !=0)
@@ -166,11 +165,15 @@ public class EnemyAi : MonoBehaviour
         if (!alreadyAttacked)
         {
             // Attack code
+            shotEff.gameObject.SetActive(false);
+            shotEff.gameObject.SetActive(true);
             GameObject obj = objectPool.GetPooledObject();
             obj.gameObject.layer = LayerMask.NameToLayer("enemyBullet");
             obj.transform.position = turret.transform.position;
             obj.GetComponent<Rigidbody>().AddForce(transform.forward * 32f, ForceMode.Impulse);
+
             alreadyAttacked = true;
+
         } 
     }
 

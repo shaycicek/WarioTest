@@ -1,7 +1,7 @@
 namespace RPGCharacterAnims.Lookups
 {
     public enum HitType
-    {
+	{
         Forward1 = 1,
         Forward2 = 2,
         Back1 = 3,
