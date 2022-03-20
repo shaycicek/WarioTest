@@ -17,11 +17,13 @@ public class upgradeBut : MonoBehaviour
         
         for (int i = 0; i < 5; i++)
         {
-            player.fsoldierList.RemoveAt(i);
             player.fsoldierList[i].gameObject.SetActive(false);
-            Destroy(player.fsoldierList[i].gameObject);
+            player.fsoldierList.RemoveAt(i);
+            
+            //Destroy(player.fsoldierList[i].gameObject);
             // ObjectPool ile spawn yapýlmasý durumunda destroy yerine SetActive(false)...!
         }
+
         this.gameObject.SetActive(false);
     }
 }

@@ -21,7 +21,7 @@ public class Player : MonoBehaviour
 
     // List
     public List<Soldier> fsoldierList;
-
+   
     public LayerMask whatIsEnemy, whatIsFriend;
     // States
     public float attackRange;
@@ -63,7 +63,7 @@ public class Player : MonoBehaviour
             
             deathEff.gameObject.SetActive(true);
             timer += Time.deltaTime;
-            if (timer > 0.1)
+            if (timer > 1)
             {
                 Destroy(gameObject);
                 Time.timeScale = 0;

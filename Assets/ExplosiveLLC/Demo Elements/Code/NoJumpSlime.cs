@@ -1,8 +1,7 @@
 ﻿using UnityEngine;
-using RPGCharacterAnims.Actions;
-using RPGCharacterAnims.Lookups;
+using RPGCharacterAnimsFREE.Actions;
 
-namespace RPGCharacterAnims
+namespace RPGCharacterAnimsFREE
 {
     public class NoJumpSlime : MonoBehaviour
     {
@@ -14,10 +13,10 @@ namespace RPGCharacterAnims
             controller = collide.gameObject.GetComponent<RPGCharacterController>();
 
             if (controller != null) {
-                oldJumpHandler = controller.GetHandler(HandlerTypes.Jump);
-                controller.SetHandler(HandlerTypes.Jump, new SimpleActionHandler(() => {
+                oldJumpHandler = controller.GetHandler("Jump");
+                controller.SetHandler("Jump", new SimpleActionHandler(() => {
                     Debug.Log("Can't jump!");
-                    controller.EndAction(HandlerTypes.Jump);
+                    controller.EndAction("Jump");
                 }, () => { }));
             }
         }
@@ -25,7 +24,7 @@ namespace RPGCharacterAnims
         private void OnTriggerExit(Collider collide)
         {
             if (collide.gameObject == controller.gameObject) {
-                controller.SetHandler(HandlerTypes.Jump, oldJumpHandler);
+                controller.SetHandler("Jump", oldJumpHandler);
                 controller = null;
                 oldJumpHandler = null;
             }

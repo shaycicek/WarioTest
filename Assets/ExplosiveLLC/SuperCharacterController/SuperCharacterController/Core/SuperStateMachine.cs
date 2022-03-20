@@ -23,7 +23,8 @@ public class SuperStateMachine:MonoBehaviour
 	public Enum currentState
 	{
 		get => state.currentState;
-		set {
+		set
+		{
 			if (state.currentState == value) { return; }
 
 			ChangingState();
@@ -63,14 +64,16 @@ public class SuperStateMachine:MonoBehaviour
 	/// Retrieves the specific state method for the provided method root.
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	/// <param name="methodRoot">Based method name that is appended to the state name by an underscore, in the form of X_methodRoot where X is a state name.</param>
+	/// <param name="methodRoot">Based method name that is appended to the state name by an underscore,
+	/// in the form of X_methodRoot where X is a state name.</param>
 	/// <param name="Default"></param>
 	/// <returns>The state specific method as a delegate or Default if it does not exist.</returns>
 	private T ConfigureDelegate<T>(string methodRoot, T Default) where T : class
 	{
-		if (!_cache.TryGetValue(state.currentState, out Dictionary<string, Delegate> lookup))
-		{ _cache[state.currentState] = lookup = new Dictionary<string, Delegate>(); }
 
+		if (!_cache.TryGetValue(state.currentState, out Dictionary<string, Delegate> lookup)) {
+			_cache[state.currentState] = lookup = new Dictionary<string, Delegate>();
+		}
 		if (!lookup.TryGetValue(methodRoot, out Delegate returnValue)) {
 			System.Reflection.MethodInfo mtd = GetType().GetMethod(state.currentState.ToString() + "_" + methodRoot, System.Reflection.BindingFlags.Instance
 				| System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.InvokeMethod);
@@ -80,7 +83,6 @@ public class SuperStateMachine:MonoBehaviour
 
 			lookup[methodRoot] = returnValue;
 		}
-
 		return returnValue as T;
 
 	}
@@ -91,7 +93,9 @@ public class SuperStateMachine:MonoBehaviour
 	private void SuperUpdate()
 	{
 		EarlyGlobalSuperUpdate();
+
 		state.DoSuperUpdate();
+
 		LateGlobalSuperUpdate();
 	}
 

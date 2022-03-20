@@ -2,8 +2,7 @@
 
 public class PlayerMachineDebug:MonoBehaviour
 {
-	[SerializeField]
-	private PlayerMachine playerMachine;
+	[SerializeField] private PlayerMachine playerMachine;
 
 	private float timeScale = 1.0f;
 

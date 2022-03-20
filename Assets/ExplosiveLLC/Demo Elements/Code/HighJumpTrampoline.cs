@@ -1,7 +1,6 @@
-﻿using RPGCharacterAnims.Lookups;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace RPGCharacterAnims
+namespace RPGCharacterAnimsFREE
 {
     public class HighJumpTrampoline : MonoBehaviour
     {
@@ -13,7 +12,7 @@ namespace RPGCharacterAnims
             if (character != null) {
                 RPGCharacterController controller = character.GetComponent<RPGCharacterController>();
                 controller.SetJumpInput(Vector3.up);
-                controller.TryStartAction(HandlerTypes.Jump);
+                if (controller.CanStartAction("Jump")) { controller.StartAction("Jump"); }
             }
         }
 

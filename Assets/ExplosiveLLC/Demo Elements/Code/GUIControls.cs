@@ -1,16 +1,14 @@
-using RPGCharacterAnims.Actions;
-using RPGCharacterAnims.Extensions;
-using RPGCharacterAnims.Lookups;
 using UnityEngine;
+using RPGCharacterAnimsFREE.Actions;
 
-namespace RPGCharacterAnims
+namespace RPGCharacterAnimsFREE
 {
     public class GUIControls : MonoBehaviour
     {
         private RPGCharacterController rpgCharacterController;
         private RPGCharacterWeaponController rpgCharacterWeaponController;
-		private float idleStatic;
         private bool useInstant;
+        private bool instantToggle;
         private bool useNavigation;
         private Vector3 jumpInput;
         public GameObject nav;
@@ -24,190 +22,157 @@ namespace RPGCharacterAnims
 
         private void OnGUI()
         {
-			if (rpgCharacterController.maintainingGround) { Navigation(); }
+            // Character is not dead.
+            if (!rpgCharacterController.isDead) {
 
-	        // Character is not on the ground.
-	        if (!rpgCharacterController.maintainingGround) {
-		        Jumping();
-		        return;
-	        }
-
-			if (rpgCharacterController.canAction) {
-				Idle();
-				Attacks();
-				Damage();
-				DiveRoll();
-				WeaponSwitching();
-			}
-
-			DebugRPGCharacter();
+				// Character is on the ground.
+				if (rpgCharacterController.maintainingGround) {
+					Navigation();
+					WeaponSwitching();
+					Attacks();
+					Damage();
+					RollDodgeTurn();
+				}
+				Jumping();
+            }
+            Misc();
         }
 
-		private void Idle()
-		{
-			GUI.Button(new Rect(540, 140, 60, 30), "Idle");
-			idleStatic = GUI.HorizontalSlider(new Rect(540, 170, 60, 30), idleStatic, 0.0F, 1f);
-			rpgCharacterController.animator.SetFloat(AnimationParameters.Idle, idleStatic);
-		}
-
-		private void Navigation()
+        private void Navigation()
         {
-			// Check to make sure Navigation Action exists.
-            if (!rpgCharacterController.HandlerExists(HandlerTypes.Navigation)) { return; }
+            useNavigation = GUI.Toggle(new Rect(610, 105, 100, 30), useNavigation, "Navigation");
 
-            useNavigation = GUI.Toggle(new Rect(550, 105, 100, 30), useNavigation, "Navigation");
-
-            var navChild = nav.transform.GetChild(0);
+            if (!rpgCharacterController.HandlerExists("Navigation")) {
+                return;
+            }
             if (useNavigation) {
-
-				// Show the navigation pointer.
-	            navChild.GetComponent<MeshRenderer>().enabled = true;
-	            navChild.GetChild(0).GetComponent<MeshRenderer>().enabled = true;
+                nav.transform.GetChild(0).GetComponent<MeshRenderer>().enabled = true;
+                nav.transform.GetChild(0).GetChild(0).GetComponent<MeshRenderer>().enabled = true;
                 RaycastHit hit;
                 if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 100)) {
                     nav.transform.position = hit.point;
-                    if (Input.GetMouseButtonDown(0))
-					{ rpgCharacterController.StartAction(HandlerTypes.Navigation, hit.point); }
+                    if (Input.GetMouseButtonDown(0)) {
+                        rpgCharacterController.StartAction("Navigation", hit.point);
+                    }
+                }
+            } else {
+                if (rpgCharacterController.CanEndAction("Navigation")) {
+                    nav.transform.GetChild(0).GetComponent<MeshRenderer>().enabled = false;
+                    nav.transform.GetChild(0).GetChild(0).GetComponent<MeshRenderer>().enabled = false;
+                    rpgCharacterController.EndAction("Navigation");
                 }
             }
-			else {
-				// Hide the navigation pointer.
-	            if (!rpgCharacterController.CanEndAction(HandlerTypes.Navigation)) { return; }
-	            navChild.GetComponent<MeshRenderer>().enabled = false;
-	            navChild.GetChild(0).GetComponent<MeshRenderer>().enabled = false;
-	            rpgCharacterController.EndAction(HandlerTypes.Navigation);
+        }
+
+        private void Attacks()
+        {
+            if (!rpgCharacterController.CanStartAction("Attack")) {
+                return;
+            }
+            if (rpgCharacterController.leftWeapon == (int)Weapon.Unarmed) {
+                if (GUI.Button(new Rect(25, 85, 100, 30), "Attack L")) {
+                    rpgCharacterController.StartAction("Attack", new Actions.AttackContext("Attack", "Left"));
+                }
+            }
+            if (rpgCharacterController.rightWeapon == (int)Weapon.Unarmed) {
+                if (GUI.Button(new Rect(130, 85, 100, 30), "Attack R")) {
+                    rpgCharacterController.StartAction("Attack", new Actions.AttackContext("Attack", "Right"));
+                }
+            }
+            if (rpgCharacterController.hasTwoHandedWeapon) {
+                if (GUI.Button(new Rect(130, 85, 100, 30), "Attack")) {
+                    rpgCharacterController.StartAction("Attack", new Actions.AttackContext("Attack", "None"));
+                }
             }
         }
 
-		private void Attacks()
-		{
-			// Check if Attack Action exists.
-			if (!rpgCharacterController.HandlerExists(HandlerTypes.Attack)) { return; }
-
-			// End special attack.
-			if (rpgCharacterController.CanEndAction(HandlerTypes.Attack)) {
-				if (GUI.Button(new Rect(235, 85, 100, 30), "End Special"))
-				{ rpgCharacterController.EndAction(HandlerTypes.Attack); }
-			}
-
-			if (!rpgCharacterController.CanStartAction(HandlerTypes.Attack)) { return; }
-
-			if (rpgCharacterController.leftWeapon == Weapon.Unarmed && rpgCharacterController.rightWeapon == Weapon.Unarmed) {
-				if (GUI.Button(new Rect(25, 85, 100, 30), "Attack L"))
-				{ rpgCharacterController.StartAction(HandlerTypes.Attack, new AttackContext("Attack", Side.Left)); }
-			}
-			if (rpgCharacterController.rightWeapon == Weapon.Unarmed && rpgCharacterController.leftWeapon == Weapon.Unarmed) {
-				if (GUI.Button(new Rect(130, 85, 100, 30), "Attack R"))
-				{ rpgCharacterController.StartAction(HandlerTypes.Attack, new AttackContext("Attack", Side.Right)); }
-			}
-			if (rpgCharacterController.hasTwoHandedWeapon) {
-				if (GUI.Button(new Rect(130, 85, 100, 30), "Attack"))
-				{ rpgCharacterController.StartAction(HandlerTypes.Attack, new AttackContext("Attack", Side.None)); }
-			}
-		}
-
-		private void Damage()
+        private void Damage()
         {
-			// Check if Get Hit Action exists.
-			if (rpgCharacterController.HandlerExists(HandlerTypes.GetHit)
-				&& rpgCharacterController.CanStartAction(HandlerTypes.GetHit)) {
-					if (GUI.Button(new Rect(30, 240, 100, 30), "Get Hit"))
-					{ rpgCharacterController.StartAction(HandlerTypes.GetHit, new HitContext()); }
-			}
-			// Check if Knockback Action exists.
-			if (rpgCharacterController.HandlerExists(HandlerTypes.Knockback)
-				&& rpgCharacterController.CanStartAction(HandlerTypes.Knockback)) {
-					if (GUI.Button(new Rect(130, 240, 100, 30), "Knockback1"))
-					{ rpgCharacterController.StartAction(HandlerTypes.Knockback, new HitContext((int)KnockbackType.Knockback1, Vector3.back)); }
-					if (GUI.Button(new Rect(230, 240, 100, 30), "Knockback2"))
-					{ rpgCharacterController.StartAction(HandlerTypes.Knockback, new HitContext((int)KnockbackType.Knockback2, Vector3.back)); }
-			}
-			// Check if Knockdown Action exists.
-			if (rpgCharacterController.HandlerExists(HandlerTypes.Knockdown)
-				&& rpgCharacterController.CanStartAction(HandlerTypes.Knockdown)) {
-					if (GUI.Button(new Rect(130, 270, 100, 30), "Knockdown"))
-					{ rpgCharacterController.StartAction(HandlerTypes.Knockdown, new HitContext((int)KnockdownType.Knockdown1, Vector3.back)); }
-			}
+            if (GUI.Button(new Rect(30, 240, 100, 30), "Get Hit")) { rpgCharacterController.StartAction("GetHit", new HitContext()); }
+            if (GUI.Button(new Rect(130, 240, 100, 30), "Knockback1")) { rpgCharacterController.StartAction("Knockback", new HitContext(1, Vector3.back)); }
         }
 
-		private void DiveRoll()
-		{
-			// Check if DiveRoll Action exists.
-			if (rpgCharacterController.HandlerExists(HandlerTypes.DiveRoll)) {
-				if (rpgCharacterController.CanStartAction(HandlerTypes.DiveRoll)) {
-					if (GUI.Button(new Rect(445, 75, 100, 30), "Dive Roll"))
-					{ rpgCharacterController.StartAction(HandlerTypes.DiveRoll, DiveRollType.DiveRoll1); }
-				}
-			}
-		}
+        private void RollDodgeTurn()
+        {
+            if (rpgCharacterController.CanStartAction("DiveRoll")) {
+                if (GUI.Button(new Rect(25, 30, 100, 30), "Dive Roll")) { rpgCharacterController.StartAction("DiveRoll", 1); }
+            }
+        }
 
         private void Jumping()
         {
-			// Check if Jump Action exists.
-			if (!rpgCharacterController.HandlerExists(HandlerTypes.Jump)) { return; }
-
-			if (rpgCharacterController.CanStartAction(HandlerTypes.Jump)) {
+            if (rpgCharacterController.CanStartAction("Jump")) {
                 if (GUI.Button(new Rect(25, 175, 100, 30), "Jump")) {
                     rpgCharacterController.SetJumpInput(Vector3.up);
-                    rpgCharacterController.StartAction(HandlerTypes.Jump);
-                }
-            }
-            if (rpgCharacterController.CanStartAction(HandlerTypes.DoubleJump)) {
-                if (GUI.Button(new Rect(25, 175, 100, 30), "Jump Flip")) {
-                    rpgCharacterController.SetJumpInput(Vector3.up);
-                    rpgCharacterController.StartAction(HandlerTypes.DoubleJump);
+                    rpgCharacterController.StartAction("Jump");
                 }
             }
         }
 
-		private void DebugRPGCharacter()
-		{
-			if (GUI.Button(new Rect(600, 20, 120, 30), "Debug Controller"))
-			{ rpgCharacterController.DebugController(); }
-			if (GUI.Button(new Rect(600, 50, 120, 30), "Debug Animator"))
-			{ rpgCharacterController.animator.DebugAnimatorParameters(); }
-		}
-
         private void WeaponSwitching()
-		{
-			// Check if SwitchWeapon Action exists.
-			if (!rpgCharacterController.HandlerExists(HandlerTypes.SwitchWeapon)) { return; }
+        {
+            if (!rpgCharacterController.CanStartAction("SwitchWeapon")) { return; }
 
-			var doSwitch = false;
-			var context = new SwitchWeaponContext();
+            bool doSwitch = false;
+            SwitchWeaponContext context = new SwitchWeaponContext();
 
-			if (rpgCharacterController.rightWeapon != Weapon.Unarmed
-				|| rpgCharacterController.leftWeapon != Weapon.Unarmed) {
-				if (GUI.Button(new Rect(1115, 280, 100, 30), "Unarmed")) {
-					doSwitch = true;
-					context.type = "Switch";
-					context.side = "Both";
-					context.leftWeapon = Weapon.Unarmed;
-					context.rightWeapon = Weapon.Unarmed;
-				}
-			}
-			var offset = 310;
+            if (rpgCharacterController.rightWeapon != (int)Weapon.Unarmed || rpgCharacterController.leftWeapon != (int)Weapon.Unarmed) {
+                if (GUI.Button(new Rect(1115, 280, 100, 30), "Unarmed")) {
+                    doSwitch = true;
+                    context.type = "Switch";
+                    context.side = "Dual";
+                    context.leftWeapon = (int)Weapon.Unarmed;
+                    context.rightWeapon = (int)Weapon.Unarmed;
+                }
+            }
 
-			foreach (var weapon in WeaponGroupings.TwoHandedWeapons) {
-				if (rpgCharacterController.rightWeapon != weapon) {
-					var label = weapon.ToString();
-					if (label.StartsWith("TwoHand")) { label = label.Replace("TwoHand", "2H "); }
-					if (GUI.Button(new Rect(1115, offset, 100, 30), label)) {
-						doSwitch = true;
-						context.type = "Switch";
-						context.side = "None";
-						context.leftWeapon = Weapon.Unarmed;
-						context.rightWeapon = weapon;
-					}
-				}
-				offset += 30;
-			}
-			// Instant weapon toggle.
-			useInstant = GUI.Toggle(new Rect(1000, 310, 100, 30), useInstant, "Instant");
-			if (useInstant) { context.type = "Instant"; }
+            // Two-handed weapons.
+            Weapon[] weapons = new Weapon[] {
+                Weapon.TwoHandSword,
+            };
+            int offset = 310;
 
-			// Perform the weapon switch.
-			if (doSwitch) { rpgCharacterController.TryStartAction(HandlerTypes.SwitchWeapon, context); }
-		}
-	}
+            foreach (Weapon weapon in weapons) {
+                if (rpgCharacterController.rightWeapon != (int)weapon) {
+                    string label = weapon.ToString();
+                    if (label.StartsWith("TwoHand")) {
+                        label = label.Replace("TwoHand", "2H ");
+                    }
+                    if (GUI.Button(new Rect(1115, offset, 100, 30), label)) {
+                        doSwitch = true;
+                        context.type = "Switch";
+                        context.side = "None";
+                        context.leftWeapon = -1;
+                        context.rightWeapon = (int)weapon;
+                    }
+                }
+                offset += 30;
+            }
+
+            // Instant weapon toggle.
+            useInstant = GUI.Toggle(new Rect(1130, 350, 100, 30), useInstant, "Instant");
+            if (useInstant) { context.type = "Instant"; }
+
+            // Perform the weapon switch.
+            if (doSwitch) { rpgCharacterController.StartAction("SwitchWeapon", context); }
+        }
+
+        // Death / Debug.
+        private void Misc()
+        {
+            string deathReviveLabel = rpgCharacterController.isDead ? "Revive" : "Death";
+            if (rpgCharacterController.maintainingGround) {
+                if (GUI.Button(new Rect(30, 270, 100, 30), deathReviveLabel)) {
+                    if (rpgCharacterController.CanStartAction("Death")) {
+                        rpgCharacterController.StartAction("Death");
+                    } else if (rpgCharacterController.CanEndAction("Death")) {
+                        rpgCharacterController.EndAction("Death");
+                    }
+                }
+            }
+            // Debug.
+            if (GUI.Button(new Rect(600, 20, 120, 30), "Debug Controller")) { rpgCharacterController.ControllerDebug(); }
+            if (GUI.Button(new Rect(600, 50, 120, 30), "Debug Animator")) { rpgCharacterController.AnimatorDebug(); }
+        }
+    }
 }

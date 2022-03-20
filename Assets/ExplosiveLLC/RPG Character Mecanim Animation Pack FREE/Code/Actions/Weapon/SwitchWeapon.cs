@@ -1,29 +1,30 @@
-using RPGCharacterAnims.Extensions;
-using RPGCharacterAnims.Lookups;
-using UnityEngine;
-
-namespace RPGCharacterAnims.Actions
+namespace RPGCharacterAnimsFREE.Actions
 {
-	public class SwitchWeaponContext
+    public class SwitchWeaponContext
     {
         public string type;
         public string side;
 
-		public Weapon rightWeapon;
-        public Weapon leftWeapon;
+        // "back" or "hips".
+        public string sheathLocation;
+
+        public int rightWeapon;
+        public int leftWeapon;
 
         public SwitchWeaponContext()
         {
             this.type = "Instant";
             this.side = "None";
-            this.rightWeapon = Weapon.Unarmed;
-            this.leftWeapon = Weapon.Unarmed;
+            this.sheathLocation = "Back";
+            this.rightWeapon = (int)Weapon.Unarmed;
+            this.leftWeapon = (int)Weapon.Unarmed;
         }
 
-        public SwitchWeaponContext(string type, string side, Weapon rightWeapon = Weapon.Unarmed, Weapon leftWeapon = Weapon.Unarmed)
+        public SwitchWeaponContext(string type, string side, string sheathLocation = "Back", int rightWeapon = -1, int leftWeapon = -1)
         {
             this.type = type;
             this.side = side;
+            this.sheathLocation = sheathLocation;
             this.rightWeapon = rightWeapon;
             this.leftWeapon = leftWeapon;
         }
@@ -32,165 +33,114 @@ namespace RPGCharacterAnims.Actions
         {
             type = type.ToLower();
             side = side.ToLower();
+            sheathLocation = sheathLocation.ToLower();
         }
     }
 
     public class SwitchWeapon : BaseActionHandler<SwitchWeaponContext>
     {
         public override bool CanStartAction(RPGCharacterController controller)
-        { return !IsActive(); }
+        {
+            return !IsActive();
+        }
 
         public override bool CanEndAction(RPGCharacterController controller)
-        { return IsActive(); }
+        {
+            return IsActive();
+        }
 
         protected override void _StartAction(RPGCharacterController controller, SwitchWeaponContext context)
-		{
-			RPGCharacterWeaponController weaponController = controller.GetComponent<RPGCharacterWeaponController>();
+        {
+            RPGCharacterWeaponController weaponController = controller.GetComponent<RPGCharacterWeaponController>();
+            if (weaponController == null) {
+                EndAction(controller);
+                return;
+            }
 
-			if (weaponController == null) {
-				EndAction(controller);
-				return;
-			}
+            context.LowercaseStrings();
 
-			context.LowercaseStrings();
+            bool changeRight = false;
+            bool sheathRight = false;
+            bool unsheathRight = false;
+            int fromRight = controller.rightWeapon;
+            int toRight = context.rightWeapon;
 
-			bool changeRight = false;
-			bool sheathRight = false;
-			bool unsheathRight = false;
-			Weapon fromRightWeapon = controller.rightWeapon;
-			Weapon toRightWeapon = context.rightWeapon;
+            int fromLeft = controller.leftWeapon;
+            int toLeft = context.leftWeapon;
 
-			bool changeLeft = false;
-			bool sheathLeft = false;
-			bool unsheathLeft = false;
-			Weapon fromLeftWeapon = controller.leftWeapon;
-			Weapon toLeftWeapon = context.leftWeapon;
+            bool dualWielding = AnimationData.Is1HandedWeapon(fromRight) && AnimationData.Is1HandedWeapon(fromLeft);
+            bool dualUnsheath = context.side == "dual";
+            bool dualSheath = false;
 
-			AnimatorWeapon toAnimatorWeapon = 0;
+            int toAnimatorWeapon = 0;
 
-			// Filter which side is changing.
-			switch (context.side) {
-				case "none":
-				case "right":
-					changeRight = true;
-					if (toRightWeapon.Is2HandedWeapon() && !fromLeftWeapon.HasNoWeapon()) {
-						changeLeft = true;
-						toLeftWeapon = Weapon.Unarmed;
-					}
-					break;
-				case "both":
-					changeLeft = true;
-					changeRight = true;
-					break;
-			}
+            // Filter which side is changing.
+            switch (context.side) {
+                case "none":
+                case "right":
+                    changeRight = true;
+                    if (AnimationData.Is2HandedWeapon(toRight) && !AnimationData.IsNoWeapon(fromLeft)) {
+                        toLeft = (int)Weapon.Unarmed;
+                        dualSheath = dualWielding;
+                    }
+                    break;
+                case "dual":
+                    changeRight = true;
+                    dualSheath = dualWielding;
+                    break;
+            }
 
-			// Force Unarmed if sheathing weapons.
-			if (context.type == "sheath") {
-				if (context.side == "left" || context.side == "dual" || context.side == "both")
-				{ toLeftWeapon = Weapon.Unarmed; }
-				else { toLeftWeapon = fromLeftWeapon; }
+            // Force unarmed if sheathing weapons.
+            if (context.type == "sheath") {
+                if (context.side == "none" || context.side == "right" || context.side == "dual" || context.side == "both") {
+                    toRight = (int)Weapon.Unarmed;
+                }
+            }
 
-				if (context.side == "none" || context.side == "right" || context.side == "dual" || context.side == "both")
-				{ toRightWeapon = Weapon.Unarmed; }
-				else { toRightWeapon = fromRightWeapon; }
-			}
+            // Sheath weapons first if our starting weapon is different from our desired weapon and we're
+            // not starting from an unarmed position.
+            if (context.type == "sheath" || context.type == "switch") {
+                sheathRight = changeRight && fromRight != toRight && !AnimationData.IsNoWeapon(fromRight);
+                toAnimatorWeapon = AnimationData.ConvertToAnimatorWeapon(toLeft, toRight);
+            }
 
-			toAnimatorWeapon = AnimationData.ConvertToAnimatorWeapon(controller.leftWeapon, controller.rightWeapon);
+            // Unsheath a weapon if our starting weapon is different from our desired weapon and we're
+            // not ending on an unarmed position.
+            if (context.type == "unsheath" || context.type == "switch") {
+                unsheathRight = changeRight && fromRight != toRight && !AnimationData.IsNoWeapon(toRight);
+            }
 
-			// If switching weapons in Armed state or from Dpad.
-			if (context.type == "switch") {
-				sheathLeft = changeLeft && fromLeftWeapon != toLeftWeapon && !fromLeftWeapon.HasNoWeapon();
-				sheathRight = changeRight && fromRightWeapon != toRightWeapon && !fromRightWeapon.HasNoWeapon();
-				unsheathLeft = changeLeft && fromLeftWeapon != toLeftWeapon && !toLeftWeapon.HasNoWeapon();
-				unsheathRight = changeRight && fromRightWeapon != toRightWeapon && !toRightWeapon.HasNoWeapon();
-			}
+            ///
+            /// Actually make changes to the weapon controller.
+            ///
 
-			// Sheath weapons first if our starting weapon is different from our desired weapon and we're
-			// not starting from an Unarmed position.
-			if (context.type == "sheath" || context.type == "switch") {
-				sheathLeft = changeLeft && fromLeftWeapon != toLeftWeapon && !fromLeftWeapon.HasNoWeapon();
-				sheathRight = changeRight && fromRightWeapon != toRightWeapon && !fromRightWeapon.HasNoWeapon();
-			}
+            if (context.type == "instant") {
+                if (changeRight) { weaponController.InstantWeaponSwitch(toRight); }
+            } else {
+                // Sheath weapons first if that's necessary.
+                if (sheathRight) {
+                    // Debug.Log("Sheath Right (dual: " + dualSheath + "): " + fromRight + " > " + toRight);
+                    weaponController.SheathWeapon(fromRight, toAnimatorWeapon, dualSheath);
+                }
+                // Finally, unsheath the desired weapons!
+                if (unsheathRight) {
+                    // Debug.Log("Unsheath Right (dual: " + dualUnsheath + "): " + toRight);
+                    weaponController.UnsheathWeapon(toRight, dualUnsheath);
+                }
+            }
 
-			// Unsheath a weapon if our starting weapon is different from our desired weapon and we're
-			// not ending on an Unarmed position.
-			if (context.type == "unsheath" || context.type == "switch") {
-				unsheathLeft = changeLeft && fromLeftWeapon != toLeftWeapon && !toLeftWeapon.HasNoWeapon();
-				unsheathRight = changeRight && fromRightWeapon != toRightWeapon && !toRightWeapon.HasNoWeapon();
-			}
+            // This callback will update the weapons in character controller after all other
+            // coroutines finish.
+            weaponController.AddCallback(() => {
+                if (changeRight) { controller.rightWeapon = toRight; }
 
-			DebugSwitchWeapon(weaponController, context, changeRight, changeLeft, sheathRight, sheathLeft, unsheathRight, unsheathLeft,
-				fromRightWeapon, toRightWeapon, fromLeftWeapon, toLeftWeapon);
+                // Turn off the isWeaponSwitching flag and sync weapon object visibility.
+                weaponController.SyncWeaponVisibility();
+                EndAction(controller);
+            });
+        }
 
-			///
-			/// Actually make changes to the weapon controller.
-			///
-
-			// If Instant Switch.
-			if (context.type == "instant") {
-				Debug.Log("Instant Switch");
-				if (changeLeft && changeRight) { weaponController.InstantWeaponSwitch(toRightWeapon); }
-				else if (changeLeft) { weaponController.InstantWeaponSwitch(toLeftWeapon); }
-				else if (changeRight) { weaponController.InstantWeaponSwitch(toRightWeapon); }
-			}
-			// Non-instant weapon switch.
-			else {
-
-				// SHEATHING
-				if (sheathRight) {
-					Debug.Log("Sheath Right - fromRightAnim: "
-						+ fromRightWeapon + " > " + "toRightAnim: " + toRightWeapon);
-					weaponController.SheathWeapon(fromRightWeapon, toRightWeapon);
-				}
-
-				// UNSHEATHING
-				if (unsheathRight) {
-					Debug.Log("Unsheath Right:" + toRightWeapon);
-					weaponController.UnsheathWeapon(toRightWeapon);
-				}
-			}
-
-			EndSwitch(controller, weaponController, changeRight, toRightWeapon, changeLeft, toLeftWeapon);
-		}
-
-		/// <summary>
-		/// Updates the weapons in character controller through callback, syncs the weapon visibility, and then ends the action.
-		/// </summary>
-		/// <param name="controller"></param>
-		/// <param name="weaponController">RPGCharacterWeaponController.</param>
-		/// <param name="changeRight">If rightWeapon changed.</param>
-		/// <param name="toRightWeapon">New rightWeapon number.</param>
-		/// <param name="changeLeft">If leftWeapon changed.</param>
-		/// <param name="toLeftWeapon">New leftWeapon number.</param>
-		private void EndSwitch(RPGCharacterController controller, RPGCharacterWeaponController weaponController, bool changeRight, Weapon toRightWeapon, bool changeLeft, Weapon toLeftWeapon)
-		{
-			// This callback will update the weapons in character controller after all other
-			// coroutines finish.
-			weaponController.AddCallback(() => {
-				if (changeLeft) { controller.leftWeapon = toLeftWeapon; }
-				if (changeRight) { controller.rightWeapon = toRightWeapon; }
-
-				// Turn off the isWeaponSwitching flag and sync weapon object visibility.
-				weaponController.SyncWeaponVisibility();
-				EndAction(controller);
-			});
-		}
-
-		private static void DebugSwitchWeapon(RPGCharacterWeaponController weaponController, SwitchWeaponContext context, bool changeRight, bool changeLeft, bool sheathRight,
-			bool sheathLeft, bool unsheathRight, bool unsheathLeft, Weapon fromRightWeapon, Weapon toRightWeapon, Weapon fromLeftWeapon,
-			Weapon toLeftWeapon)
-		{
-			if (weaponController.debugSwitchWeaponContext) {
-				Debug.Log("===SwitchWeaponContext===");
-				Debug.Log($"leftWeapon:{context.leftWeapon}   rightWeapon:{context.rightWeapon}   " +
-					$"side:{context.side}    type:{context.type}    " +
-					$"changeLeft:{changeLeft}    changeRight:{changeRight}    sheathRight:{sheathRight}    sheathLeft:{sheathLeft}");
-				Debug.Log($"fromRightWeapon:{fromRightWeapon}   toRightWeapon:{toRightWeapon}   " +
-					$"fromLeftWeapon:{fromLeftWeapon}    toLeftWeapon:{toLeftWeapon}");
-			}
-		}
-
-		protected override void _EndAction(RPGCharacterController controller)
+        protected override void _EndAction(RPGCharacterController controller)
         {
         }
     }

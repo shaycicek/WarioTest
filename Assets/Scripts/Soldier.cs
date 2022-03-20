@@ -91,6 +91,7 @@ public class Soldier : MonoBehaviour
         // Caný sýfýrlanýnca ölür
         if (sHealth <= 0)
         {
+            Debug.Log("Soldier dead = "+p1.getSoldierListSize());
             deathEff.gameObject.SetActive(true);
             Debug.Log("deathEff Active");
             timer += Time.deltaTime;

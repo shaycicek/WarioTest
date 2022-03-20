@@ -1,8 +1,8 @@
-﻿/*
- * Example implementation of the SuperStateMachine and SuperCharacterController.
- */
-using UnityEngine;
+﻿using UnityEngine;
 
+/*
+ * Example implementation of the SuperStateMachine and SuperCharacterController
+ */
 [RequireComponent(typeof(SuperCharacterController))]
 [RequireComponent(typeof(PlayerInputController))]
 public class PlayerMachine:SuperStateMachine
@@ -42,19 +42,20 @@ public class PlayerMachine:SuperStateMachine
 		currentState = PlayerStates.Idle;
 	}
 
-	// Put any code in here you want to run BEFORE the state's update function.
-	// This is run regardless of what state you're in.
 	protected override void EarlyGlobalSuperUpdate()
 	{
-		// Rotate out facing direction horizontally based on mouse input.
+		// Rotate out facing direction horizontally based on mouse input
 		// (Taking into account that this method may be called multiple times per frame)
 		lookDirection = Quaternion.AngleAxis(input.Current.MouseInput.x * (controller.deltaTime / Time.deltaTime), controller.up) * lookDirection;
+		// Put any code in here you want to run BEFORE the state's update function.
+		// This is run regardless of what state you're in.
 	}
 
-	// Put any code in here you want to run AFTER the state's update function.
-	// This is run regardless of what state you're in.
 	protected override void LateGlobalSuperUpdate()
 	{
+		// Put any code in here you want to run AFTER the state's update function.
+		// This is run regardless of what state you're in.
+
 		// Move the player by our velocity every frame.
 		transform.position += moveDirection * controller.deltaTime;
 
@@ -101,7 +102,7 @@ public class PlayerMachine:SuperStateMachine
 
 	/*void Update () {
 	 * Update is normally run once on every frame update. We won't be using it
-     * in this case, since the SuperCharacterController component sends a callback Update 
+     * in this case, since the SuperCharacterController component sends a callback Update
      * called SuperUpdate. SuperUpdate is recieved by the SuperStateMachine, and then fires
      * further callbacks depending on the state.
 	}*/
@@ -122,10 +123,12 @@ public class PlayerMachine:SuperStateMachine
 			currentState = PlayerStates.Jump;
 			return;
 		}
+
 		if (!MaintainingGround()) {
 			currentState = PlayerStates.Fall;
 			return;
 		}
+
 		if (input.Current.MoveInput != Vector3.zero) {
 			currentState = PlayerStates.Walk;
 			return;
@@ -146,14 +149,15 @@ public class PlayerMachine:SuperStateMachine
 			currentState = PlayerStates.Jump;
 			return;
 		}
+
 		if (!MaintainingGround()) {
 			currentState = PlayerStates.Fall;
 			return;
 		}
+
 		if (input.Current.MoveInput != Vector3.zero) {
 			moveDirection = Vector3.MoveTowards(moveDirection, LocalMovement() * WalkSpeed, WalkAcceleration * controller.deltaTime);
-		} 
-		else {
+		} else {
 			currentState = PlayerStates.Idle;
 			return;
 		}

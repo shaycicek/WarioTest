@@ -8,6 +8,7 @@ public class Math3d:MonoBehaviour
 
 	public static void Init()
 	{
+
 		tempChild = (new GameObject("Math3d_TempChild")).transform;
 		tempParent = (new GameObject("Math3d_TempParent")).transform;
 
@@ -17,7 +18,6 @@ public class Math3d:MonoBehaviour
 		tempParent.gameObject.hideFlags = HideFlags.HideAndDontSave;
 		DontDestroyOnLoad(tempParent.gameObject);
 
-		// Set the parent.
 		tempChild.parent = tempParent;
 	}
 
@@ -33,7 +33,7 @@ public class Math3d:MonoBehaviour
 		// Normalize the vector.
 		Vector3 vectorNormalized = Vector3.Normalize(vector);
 
-		//S cale the vector.
+		// Scale the vector.
 		return Vector3.Scale(vectorNormalized, new Vector3(magnitude, magnitude, magnitude));
 	}
 
@@ -43,7 +43,7 @@ public class Math3d:MonoBehaviour
 		// Normalize the vector.
 		Vector3 vectorNormalized = Vector3.Normalize(vector);
 
-		//S cale the vector.
+		// Scale the vector.
 		return vectorNormalized *= size;
 	}
 
@@ -54,7 +54,7 @@ public class Math3d:MonoBehaviour
 		return C;
 	}
 
-	// Find the line of intersection between two planes.  The planes are defined by a normal and a point on that plane.
+	// Find the line of intersection between two planes.	The planes are defined by a normal and a point on that plane.
 	// The outputs are a point on the line and a vector which indicates it's direction. If the planes are not parallel,
 	// the function outputs true, otherwise false.
 	public static bool PlanePlaneIntersection(out Vector3 linePoint, out Vector3 lineVec, Vector3 plane1Normal, Vector3 plane1Position, Vector3 plane2Normal, Vector3 plane2Position)
@@ -77,6 +77,7 @@ public class Math3d:MonoBehaviour
 
 		// Prevent divide by zero and rounding errors by requiring about 5 degrees angle between the planes.
 		if (Mathf.Abs(denominator) > 0.006f) {
+
 			Vector3 plane1ToPlane2 = plane1Position - plane2Position;
 			float t = Vector3.Dot(plane1Normal, plane1ToPlane2) / denominator;
 			linePoint = plane2Position + t * ldir;
@@ -133,7 +134,9 @@ public class Math3d:MonoBehaviour
 		float planarFactor = Vector3.Dot(lineVec3, crossVec1and2);
 
 		// Lines are not coplanar. Take into account rounding errors.
-		if ((planarFactor >= 0.00001f) || (planarFactor <= -0.00001f)) { return false; }
+		if ((planarFactor >= 0.00001f) || (planarFactor <= -0.00001f)) {
+			return false;
+		}
 
 		// Note: sqrMagnitude does x*x+y*y+z*z on the input vector.
 		float s = Vector3.Dot(crossVec3and2, crossVec1and2) / crossVec1and2.sqrMagnitude;
@@ -142,8 +145,6 @@ public class Math3d:MonoBehaviour
 			intersection = linePoint1 + (lineVec1 * s);
 			return true;
 		}
-
-		// Output not valid.
 		else { return false; }
 	}
 
@@ -163,6 +164,7 @@ public class Math3d:MonoBehaviour
 
 		// Lines are not parallel.
 		if (d != 0.0f) {
+
 			Vector3 r = linePoint1 - linePoint2;
 			float c = Vector3.Dot(lineVec1, r);
 			float f = Vector3.Dot(lineVec2, r);
@@ -175,8 +177,6 @@ public class Math3d:MonoBehaviour
 
 			return true;
 		}
-
-		// Output not valid.
 		else { return false; }
 	}
 
@@ -234,12 +234,16 @@ public class Math3d:MonoBehaviour
 
 	// Projects a vector onto a plane. The output is not normalized.
 	public static Vector3 ProjectVectorOnPlane(Vector3 planeNormal, Vector3 vector)
-	{ return vector - (Vector3.Dot(vector, planeNormal) * planeNormal); }
+	{
+		return vector - (Vector3.Dot(vector, planeNormal) * planeNormal);
+	}
 
 	// Get the shortest distance between a point and a plane. The output is signed so it holds information
 	// as to which side of the plane normal the point is.
 	public static float SignedDistancePlanePoint(Vector3 planeNormal, Vector3 planePoint, Vector3 point)
-	{ return Vector3.Dot(planeNormal, (point - planePoint)); }
+	{
+		return Vector3.Dot(planeNormal, (point - planePoint));
+	}
 
 	// This function calculates a signed (+ or - sign instead of being ambiguous) dot product. It is basically used
 	// to figure out whether a vector is positioned to the left or right of another vector. The way this is done is
@@ -301,12 +305,11 @@ public class Math3d:MonoBehaviour
 		// Get the dot product.
 		dot = Vector3.Dot(vec1, vec2);
 
-		// Clamp to prevent NaN error. Shouldn't need this in the first place, but there could be a rounding error issue.
+		//C lamp to prevent NaN error. Shouldn't need this in the first place, but there could be a rounding error issue.
 		if (dot < -1.0f) { dot = -1.0f; }
 		if (dot > 1.0f) { dot = 1.0f; }
 
-		// Calculate the angle. The output is in radians
-		// This step can be skipped for optimization.
+		// Calculate the angle. The output is in radians.
 		angle = Math.Acos(dot);
 
 		return ( float )angle;
@@ -343,19 +346,27 @@ public class Math3d:MonoBehaviour
 
 	// Returns the forward vector of a quaternion.
 	public static Vector3 GetForwardVector(Quaternion q)
-	{ return q * Vector3.forward; }
+	{
+		return q * Vector3.forward;
+	}
 
 	// Returns the up vector of a quaternion.
 	public static Vector3 GetUpVector(Quaternion q)
-	{ return q * Vector3.up; }
+	{
+		return q * Vector3.up;
+	}
 
 	// Returns the right vector of a quaternion.
 	public static Vector3 GetRightVector(Quaternion q)
-	{ return q * Vector3.right; }
+	{
+		return q * Vector3.right;
+	}
 
 	// Gets a quaternion from a matrix.
 	public static Quaternion QuaternionFromMatrix(Matrix4x4 m)
-	{ return Quaternion.LookRotation(m.GetColumn(2), m.GetColumn(1)); }
+	{
+		return Quaternion.LookRotation(m.GetColumn(2), m.GetColumn(1));
+	}
 
 	// Gets a position from a matrix.
 	public static Vector3 PositionFromMatrix(Matrix4x4 m)
@@ -470,6 +481,7 @@ public class Math3d:MonoBehaviour
 			// Point is not on the line segment and it is on the side of linePoint2.
 			else { return 2; }
 		}
+
 		// Point is not on side of linePoint2, compared to linePoint1.
 		// Point is not on the line segment and it is on the side of linePoint1.
 		else { return 1; }
@@ -503,7 +515,6 @@ public class Math3d:MonoBehaviour
 		projectedPoint = new Vector3(projectedPoint.x, projectedPoint.y, 0f);
 
 		Vector3 vector = projectedPoint - mousePosition;
-
 		return vector.magnitude;
 	}
 
@@ -522,7 +533,6 @@ public class Math3d:MonoBehaviour
 
 		// Convert format because y is flipped.
 		mousePosition = new Vector3(Event.current.mousePosition.x, currentCamera.pixelHeight - Event.current.mousePosition.y, 0f);
-
 		#else
 		currentCamera = Camera.main;
 		mousePosition = Input.mousePosition;
@@ -554,6 +564,7 @@ public class Math3d:MonoBehaviour
 
 		// None of the points are inside, so check if a line is crossing.
 		if (!pointAInside && !pointBInside) {
+
 			bool lineACrossing = AreLineSegmentsCrossing(linePoint1, linePoint2, rectA, rectB);
 			bool lineBCrossing = AreLineSegmentsCrossing(linePoint1, linePoint2, rectB, rectC);
 			bool lineCCrossing = AreLineSegmentsCrossing(linePoint1, linePoint2, rectC, rectD);
@@ -561,8 +572,7 @@ public class Math3d:MonoBehaviour
 
 			if (lineACrossing || lineBCrossing || lineCCrossing || lineDCrossing) { return true; }
 			else { return false; }
-		}
-		else { return true; }
+		} else { return true; }
 	}
 
 	// Returns true if "point" is in a rectangle mad up of RectA to RectD. The line point is assumed to be on the same
@@ -592,7 +602,7 @@ public class Math3d:MonoBehaviour
 		vector = linePoint - point;
 		float xDistance = vector.magnitude;
 
-		if ((xDistance <= width) && (yDistance <= height)) { return true; }
+		if ((xDistance <= width) && (yDistance <= height)) {  return true; }
 		else { return false; }
 	}
 
@@ -610,6 +620,7 @@ public class Math3d:MonoBehaviour
 
 		// Lines are not parallel.
 		if (valid) {
+
 			sideA = PointOnWhichSideOfLineSegment(pointA1, pointA2, closestPointA);
 			sideB = PointOnWhichSideOfLineSegment(pointB1, pointB2, closestPointB);
 

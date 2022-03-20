@@ -1,12 +1,19 @@
 using System.Collections;
-using RPGCharacterAnims.Actions;
-using RPGCharacterAnims.Extensions;
-using RPGCharacterAnims.Lookups;
 using UnityEngine;
 
-namespace RPGCharacterAnims
+namespace RPGCharacterAnimsFREE
 {
-	public class RPGCharacterMovementController : SuperStateMachine
+    public enum RPGCharacterState
+    {
+        Idle = 0,
+        Move = 1,
+        Jump = 2,
+        Fall = 3,
+        Knockback = 4,
+        DiveRoll = 5
+    }
+
+    public class RPGCharacterMovementController : SuperStateMachine
     {
         // Components.
         private SuperCharacterController superCharacterController;
@@ -15,25 +22,13 @@ namespace RPGCharacterAnims
         private Animator animator;
         private CapsuleCollider capCollider;
 
-		/// <summary>
-		/// Returns whether the character can face.
-		/// </summary>
-		public bool acquiringGround => superCharacterController.currentGround.IsGrounded(false, 0.01f);
+        [HideInInspector] public Vector3 lookDirection { get; private set; }
 
-		/// <summary>
-		/// Returns whether the character can face.
-		/// </summary>
-		public bool maintainingGround => superCharacterController.currentGround.IsGrounded(true, 0.5f);
-
-		[HideInInspector] public Vector3 lookDirection { get; private set; }
-
-		[Header("Knockback")]
         /// <summary>
         /// Multiplies the amount of knockback force a character recieves when they get hit.
         /// </summary>
         public float knockbackMultiplier = 1f;
 
-		[Header("Movement Multiplier")]
         /// <summary>
         /// Multiplies the speed of animation velocity.
         /// </summary>
@@ -48,7 +43,7 @@ namespace RPGCharacterAnims
         /// <summary>
         /// Movement speed while walking and strafing.
         /// </summary>
-        public float walkSpeed = .5f;
+        public float walkSpeed = 0.5f;
 
         /// <summary>
         /// Walking acceleration.
@@ -64,6 +59,16 @@ namespace RPGCharacterAnims
         /// Running acceleration.
         /// </summary>
         public float runAccel = 30f;
+
+        /// <summary>
+        /// Movement speed while injured.
+        /// </summary>
+        public float injuredSpeed = 0.5f;
+
+        /// <summary>
+        /// Acceleration while injured.
+        /// </summary>
+        public float injuredAccel = 20f;
 
         /// <summary>
         /// Ground friction, slows the character to a stop.
@@ -86,12 +91,6 @@ namespace RPGCharacterAnims
         /// </summary>
         [HideInInspector] public bool holdingJump;
 
-        /// <summary>
-        /// Internal flag for if the character can perform a double jump.
-        /// </summary>
-        [HideInInspector] public bool canDoubleJump = false;
-        private bool doublejumped = false;
-
         [Header("Jumping")]
         /// <summary>
         /// Jumping speed while ascending.
@@ -104,11 +103,6 @@ namespace RPGCharacterAnims
         public float jumpGravity = 24f;
 
         /// <summary>
-        /// Double jump speed.
-        /// </summary>
-        public float doubleJumpSpeed = 8f;
-
-        /// <summary>
         /// Horizontal speed while in the air.
         /// </summary>
         public float inAirSpeed = 8f;
@@ -118,33 +112,25 @@ namespace RPGCharacterAnims
         /// </summary>
         public float inAirAccel = 16f;
 
-		/// <summary>
-		/// Gravity while descending. Default is higher than ascending gravity (like a Mario jump).
-		/// </summary>
-		public float fallGravity = 32f;
+        /// <summary>
+        /// Gravity while descending. Default is higher than ascending gravity (like a Mario jump).
+        /// </summary>
+        public float fallGravity = 32f;
 
-		/// <summary>
-		/// Allows control while character is falling.
-		/// </summary>
-		public bool fallingControl = false;
-
-		[Header("Debug Options")]
-		public bool debugMessages;
+		#region Initalization
 
 		private void Awake()
         {
             rpgCharacterController = GetComponent<RPGCharacterController>();
-            rpgCharacterController.SetHandler(HandlerTypes.AcquiringGround, new SimpleActionHandler(() => { }, () => { }));
-            rpgCharacterController.SetHandler(HandlerTypes.MaintainingGround, new SimpleActionHandler(() => { }, () => { }));
-            rpgCharacterController.SetHandler(HandlerTypes.DiveRoll, new DiveRoll(this));
-            rpgCharacterController.SetHandler(HandlerTypes.DoubleJump, new DoubleJump(this));
-            rpgCharacterController.SetHandler(HandlerTypes.Fall, new Fall(this));
-            rpgCharacterController.SetHandler(HandlerTypes.GetHit, new GetHit(this));
-            rpgCharacterController.SetHandler(HandlerTypes.Idle, new Idle(this));
-            rpgCharacterController.SetHandler(HandlerTypes.Jump, new Jump(this));
-            rpgCharacterController.SetHandler(HandlerTypes.Knockback, new Knockback(this));
-            rpgCharacterController.SetHandler(HandlerTypes.Knockdown, new Knockdown(this));
-            rpgCharacterController.SetHandler(HandlerTypes.Move, new Move(this));
+            rpgCharacterController.SetHandler("AcquiringGround", new Actions.SimpleActionHandler(() => { }, () => { }));
+            rpgCharacterController.SetHandler("MaintainingGround", new Actions.SimpleActionHandler(() => { }, () => { }));
+            rpgCharacterController.SetHandler("DiveRoll", new Actions.DiveRoll(this));
+            rpgCharacterController.SetHandler("Fall", new Actions.Fall(this));
+            rpgCharacterController.SetHandler("GetHit", new Actions.GetHit(this));
+            rpgCharacterController.SetHandler("Idle", new Actions.Idle(this));
+            rpgCharacterController.SetHandler("Jump", new Actions.Jump(this));
+            rpgCharacterController.SetHandler("Knockback", new Actions.Knockback(this));
+            rpgCharacterController.SetHandler("Move", new Actions.Move(this));
 		}
 
         private void Start()
@@ -154,7 +140,7 @@ namespace RPGCharacterAnims
 
             // Check if Animator exists, otherwise pause script.
             animator = GetComponentInChildren<Animator>();
-			if (!animator) {
+			if (animator == null) {
 				Debug.LogError("ERROR: THERE IS NO ANIMATOR COMPONENT ON CHILD OF CHARACTER.");
 				Debug.Break();
 			}
@@ -164,40 +150,42 @@ namespace RPGCharacterAnims
 
             // Set restraints on startup if using Rigidbody.
             if (rb != null) { rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ; }
-
             rpgCharacterController.OnLockMovement += LockMovement;
             rpgCharacterController.OnUnlockMovement += UnlockMovement;
-            var animatorEvents = rpgCharacterController.GetAnimatorTarget().GetComponent<RPGCharacterAnimatorEvents>();
+            RPGCharacterAnimatorEvents animatorEvents = rpgCharacterController.GetAnimatorTarget().GetComponent<RPGCharacterAnimatorEvents>();
             animatorEvents.OnMove.AddListener(AnimatorMove);
         }
 
-        #region Updates
+		#endregion
 
-        /*
+		#region Updates
+
+		/*
 		Update is normally run once on every frame update. We won't be using it in this case, since the SuperCharacterController
         component sends a callback Update called SuperUpdate. SuperUpdate is recieved by the SuperStateMachine, and then fires
         further callbacks depending on the state.
 
         If SuperCharacterController is disabled then we still want the SuperStateMachine to run, so we call SuperUpdate manually.
         */
-
-        void Update()
+		void Update()
         {
-            if (!superCharacterController.enabled)
-			{ gameObject.SendMessage("SuperUpdate", SendMessageOptions.DontRequireReceiver); }
+            if (!superCharacterController.enabled) { gameObject.SendMessage("SuperUpdate", SendMessageOptions.DontRequireReceiver); }
         }
 
+        // Put any code in here you want to run BEFORE the state's update function. This is run regardless of what state you're in.
         protected override void EarlyGlobalSuperUpdate()
         {
-	        if (acquiringGround) { rpgCharacterController.StartAction(HandlerTypes.AcquiringGround); }
-			else { rpgCharacterController.EndAction(HandlerTypes.AcquiringGround); }
+            bool acquiringGround = superCharacterController.currentGround.IsGrounded(false, 0.01f);
+            bool maintainingGround = superCharacterController.currentGround.IsGrounded(true, 0.5f);
 
-            if (maintainingGround) { rpgCharacterController.StartAction(HandlerTypes.MaintainingGround); }
-			else { rpgCharacterController.EndAction(HandlerTypes.MaintainingGround); }
+            if (acquiringGround) { rpgCharacterController.StartAction("AcquiringGround"); } 
+			else { rpgCharacterController.EndAction("AcquiringGround"); }
+
+            if (maintainingGround) { rpgCharacterController.StartAction("MaintainingGround"); } 
+			else { rpgCharacterController.EndAction("MaintainingGround"); }
         }
 
-		// Put any code in here you want to run AFTER the state's update function.
-		// This is run regardless of what state you're in.
+        // Put any code in here you want to run AFTER the state's update function.  This is run regardless of what state you're in.
         protected override void LateGlobalSuperUpdate()
         {
             // If the movement controller itself is disabled, this shouldn't run.
@@ -207,32 +195,26 @@ namespace RPGCharacterAnims
             transform.position += currentVelocity * superCharacterController.deltaTime;
 
             // If alive and is moving, set animator.
-            if (rpgCharacterController.canMove) {
+            if (!rpgCharacterController.isDead && rpgCharacterController.canMove) {
                 if (currentVelocity.magnitude > 0f) {
-                    animator.SetFloat(AnimationParameters.VelocityX, 0);
-                    animator.SetFloat(AnimationParameters.VelocityZ, transform.InverseTransformDirection(currentVelocity).z * movementAnimationMultiplier);
-                    animator.SetBool(AnimationParameters.Moving, true);
-                }
-				else {
-                    animator.SetFloat(AnimationParameters.VelocityX, 0f);
-                    animator.SetFloat(AnimationParameters.VelocityZ, 0f);
-                    animator.SetBool(AnimationParameters.Moving, false);
+                    animator.SetFloat("Velocity X", 0);
+                    animator.SetFloat("Velocity Z", transform.InverseTransformDirection(currentVelocity).z * movementAnimationMultiplier);
+					animator.SetBool("Moving", true);
+				} else {
+                    animator.SetFloat("Velocity X", 0f);
+                    animator.SetFloat("Velocity Z", 0f);
+                    animator.SetBool("Moving", false);
                 }
             }
-			// Aiming.
-			if (rpgCharacterController.isAiming || rpgCharacterController.isStrafing)
-			{ RotateTowardsTarget(rpgCharacterController.aimInput); }
-
-			// Facing.
-			else if (rpgCharacterController.isFacing) { RotateTowardsDirection(rpgCharacterController.faceInput); }
+			// Strafing.
+			if (rpgCharacterController.isStrafing) { RotateTowardsTarget(rpgCharacterController.aimInput); } 
 			else if (rpgCharacterController.canMove) { RotateTowardsMovementDir(); }
 
-            if (currentState == null && rpgCharacterController.CanStartAction(HandlerTypes.Idle))
-			{ rpgCharacterController.StartAction(HandlerTypes.Idle); }
+            if (currentState == null && rpgCharacterController.CanStartAction("Idle")) { rpgCharacterController.StartAction("Idle"); }
 
 			// Update animator with local movement values.
-			animator.SetFloat(AnimationParameters.VelocityX, transform.InverseTransformDirection(currentVelocity).x * movementAnimationMultiplier);
-			animator.SetFloat(AnimationParameters.VelocityZ, transform.InverseTransformDirection(currentVelocity).z * movementAnimationMultiplier);
+			animator.SetFloat("Velocity X", transform.InverseTransformDirection(currentVelocity).x * movementAnimationMultiplier);
+			animator.SetFloat("Velocity Z", transform.InverseTransformDirection(currentVelocity).z * movementAnimationMultiplier);
 		}
 
         #endregion
@@ -243,58 +225,54 @@ namespace RPGCharacterAnims
 
         private void Idle_EnterState()
         {
-			if (debugMessages) { Debug.Log("Idle_EnterState"); }
-			superCharacterController.EnableSlopeLimit();
+            superCharacterController.EnableSlopeLimit();
             superCharacterController.EnableClamping();
             canJump = true;
-            doublejumped = false;
-            canDoubleJump = false;
         }
 
         // Run every frame character is in the idle state.
         private void Idle_SuperUpdate()
         {
-			// Check if the character starts falling.
-			if (rpgCharacterController.TryStartAction(HandlerTypes.Fall)) { return; }
+            // Apply friction to slow to a halt.
+            currentVelocity = Vector3.MoveTowards(currentVelocity, Vector3.zero, groundFriction * superCharacterController.deltaTime);
 
-			// Apply friction to slow to a halt.
-			currentVelocity = Vector3.MoveTowards(currentVelocity, Vector3.zero, groundFriction * superCharacterController.deltaTime);
-			rpgCharacterController.TryStartAction(HandlerTypes.Move);
+            if (rpgCharacterController.CanStartAction("Move")) { rpgCharacterController.StartAction("Move"); }
         }
 
         // Run every frame character is moving.
         private void Move_SuperUpdate()
         {
-			// Check if the character starts falling.
-			if (rpgCharacterController.TryStartAction(HandlerTypes.Fall)) { return; }
-
+            if (rpgCharacterController.CanStartAction("Fall")) {
+                rpgCharacterController.StartAction("Fall");
+                return;
+            }
             // Set speed determined by movement type.
             if (rpgCharacterController.canMove) {
-                var moveSpeed = runSpeed;
-                var moveAccel = runAccel;
+                float moveSpeed = runSpeed;
+                float moveAccel = runAccel;
 
-				if (rpgCharacterController.isStrafing) {
+                if (rpgCharacterController.isInjured) {
+                    moveSpeed = injuredSpeed;
+                    moveAccel = injuredAccel;
+                } else if (rpgCharacterController.isStrafing) {
                     moveSpeed = walkSpeed;
                     moveAccel = walkAccel;
                 }
+                currentVelocity = Vector3.MoveTowards(currentVelocity, rpgCharacterController.cameraRelativeInput * moveSpeed, moveAccel * superCharacterController.deltaTime);
+            }
 
-                currentVelocity = Vector3.MoveTowards(currentVelocity,
-					rpgCharacterController.cameraRelativeInput * moveSpeed,
-					moveAccel * superCharacterController.deltaTime);
-			}
-			// If there is no movement detected, go into Idle.
-            rpgCharacterController.TryStartAction(HandlerTypes.Idle);
+            if (rpgCharacterController.CanStartAction("Idle")) {  rpgCharacterController.StartAction("Idle"); }
         }
 
         private void Jump_EnterState()
         {
-			if (debugMessages) { Debug.Log("Jump_EnterState"); }
-			superCharacterController.DisableClamping();
+            superCharacterController.DisableClamping();
             superCharacterController.DisableSlopeLimit();
 
             currentVelocity = new Vector3(currentVelocity.x, jumpSpeed, currentVelocity.z);
-            animator.SetInteger(AnimationParameters.Jumping, 1);
-            animator.SetAnimatorTrigger(AnimatorTrigger.JumpTrigger);
+
+            animator.SetInteger("Jumping", 1);
+            rpgCharacterController.SetAnimatorTrigger(AnimatorTrigger.JumpTrigger);
             canJump = false;
         }
 
@@ -304,142 +282,116 @@ namespace RPGCharacterAnims
 
             // Cap jump speed if we stop holding the jump button.
             if (!holdingJump && currentVelocity.y > (jumpSpeed / 4f)) {
-	            var destination = new Vector3(currentVelocity.x, (jumpSpeed / 4f), currentVelocity.z);
-                currentVelocity = Vector3.MoveTowards(currentVelocity, destination, fallGravity * superCharacterController.deltaTime);
+                currentVelocity = Vector3.MoveTowards(currentVelocity, new Vector3(currentVelocity.x, (jumpSpeed / 4f), currentVelocity.z), fallGravity * superCharacterController.deltaTime);
             }
-
-            var planarMoveDirection = Math3d.ProjectVectorOnPlane(superCharacterController.up, currentVelocity);
-            var verticalMoveDirection = currentVelocity - planarMoveDirection;
+            Vector3 planarMoveDirection = Math3d.ProjectVectorOnPlane(superCharacterController.up, currentVelocity);
+            Vector3 verticalMoveDirection = currentVelocity - planarMoveDirection;
 
             // Falling.
             if (currentVelocity.y < 0) {
                 currentVelocity = planarMoveDirection;
-                currentState = CharacterState.Fall;
+                currentState = RPGCharacterState.Fall;
                 return;
             }
-
-			planarMoveDirection = Vector3.MoveTowards(planarMoveDirection,
-				rpgCharacterController.cameraRelativeInput * inAirSpeed,
-				inAirAccel * superCharacterController.deltaTime);
-
+            planarMoveDirection = Vector3.MoveTowards(planarMoveDirection, rpgCharacterController.cameraRelativeInput * inAirSpeed, inAirAccel * superCharacterController.deltaTime);
             verticalMoveDirection -= superCharacterController.up * jumpGravity * superCharacterController.deltaTime;
             currentVelocity = planarMoveDirection + verticalMoveDirection;
         }
 
-        private void DoubleJump_EnterState()
-        {
-			if (debugMessages) { Debug.Log("DoubleJump_EnterState"); }
-			currentVelocity = new Vector3(currentVelocity.x, doubleJumpSpeed, currentVelocity.z);
-            canDoubleJump = false;
-            doublejumped = true;
-            animator.SetInteger(AnimationParameters.Jumping, 3);
-            animator.SetAnimatorTrigger(AnimatorTrigger.JumpTrigger);
-        }
-
-		/// <summary>
-		/// DoubleJump uses the same SuperUpdate as Jump.
-		/// </summary>
-        private void DoubleJump_SuperUpdate()
-        { Jump_SuperUpdate(); }
-
         private void Fall_EnterState()
         {
-			if (debugMessages) { Debug.Log("Fall_EnterState"); }
-			if (!doublejumped) { canDoubleJump = true; }
             superCharacterController.DisableClamping();
             superCharacterController.DisableSlopeLimit();
             canJump = false;
-            animator.SetInteger(AnimationParameters.Jumping, 2);
-            animator.SetAnimatorTrigger(AnimatorTrigger.JumpTrigger);
+            animator.SetInteger("Jumping", 2);
+            rpgCharacterController.SetAnimatorTrigger(AnimatorTrigger.JumpTrigger);
         }
 
         private void Fall_SuperUpdate()
         {
-            if (rpgCharacterController.CanStartAction(HandlerTypes.Idle)) {
+            if (rpgCharacterController.CanStartAction("Idle")) {
                 currentVelocity = Math3d.ProjectVectorOnPlane(superCharacterController.up, currentVelocity);
-                rpgCharacterController.StartAction(HandlerTypes.Idle);
+                rpgCharacterController.StartAction("Idle");
                 return;
             }
-
-			// If FallingControl is enabled.
-			if (fallingControl) {
-				var planarMoveDirection = Math3d.ProjectVectorOnPlane(superCharacterController.up, currentVelocity);
-				var verticalMoveDirection = currentVelocity - planarMoveDirection;
-
-				planarMoveDirection = Vector3.MoveTowards(planarMoveDirection,
-					rpgCharacterController.cameraRelativeInput * inAirSpeed,
-					inAirAccel * superCharacterController.deltaTime);
-
-				verticalMoveDirection -= superCharacterController.up * fallGravity * superCharacterController.deltaTime;
-				currentVelocity = planarMoveDirection + verticalMoveDirection;
-			}
-			else { currentVelocity -= superCharacterController.up * fallGravity * superCharacterController.deltaTime; }
-		}
+            currentVelocity -= superCharacterController.up * fallGravity * superCharacterController.deltaTime;
+        }
 
 		private void Fall_ExitState()
 		{
-			if (debugMessages) { Debug.Log("Fall_ExitState"); }
-			animator.SetInteger(AnimationParameters.Jumping, 0);
-			animator.SetAnimatorTrigger(AnimatorTrigger.JumpTrigger);
+			animator.SetInteger("Jumping", 0);
+			rpgCharacterController.SetAnimatorTrigger(AnimatorTrigger.JumpTrigger);
+
+			// Character landed.
+			if (rpgCharacterController.maintainingGround) { Land(); }
 		}
 
-        private void DiveRoll_EnterState()
+		private void DiveRoll_EnterState()
         {
-			if (debugMessages) { Debug.Log("DiveRoll_EnterState"); }
-			rpgCharacterController.OnUnlockMovement += IdleOnceAfterMoveUnlock;
-		}
+            rpgCharacterController.OnUnlockMovement += IdleOnceAfterMoveUnlock;
+        }
 
 		private void DiveRoll_SuperUpdate()
 		{
-			if (rpgCharacterController.CanStartAction(HandlerTypes.Idle)) {
+			if (rpgCharacterController.CanStartAction("Idle")) {
 				currentVelocity = Math3d.ProjectVectorOnPlane(superCharacterController.up, currentVelocity);
-				rpgCharacterController.StartAction(HandlerTypes.Idle);
+				rpgCharacterController.StartAction("Idle");
 				return;
 			}
 			currentVelocity -= superCharacterController.up * (fallGravity / 2) * superCharacterController.deltaTime;
 		}
 
-        private void Knockback_EnterState()
+		private void Knockback_EnterState()
         {
-			if (debugMessages) { Debug.Log("Knockback_EnterState"); }
-			rpgCharacterController.OnUnlockMovement += IdleOnceAfterMoveUnlock;
-		}
+            rpgCharacterController.OnUnlockMovement += IdleOnceAfterMoveUnlock;
+        }
 
         private void Knockdown_EnterState()
         {
-			if (debugMessages) { Debug.Log("Knockdown_EnterState"); }
-			rpgCharacterController.OnUnlockMovement += IdleOnceAfterMoveUnlock;
-		}
+            rpgCharacterController.OnUnlockMovement += IdleOnceAfterMoveUnlock;
+        }
 
 		#endregion
 
-        private void RotateTowardsMovementDir()
+		/// <summary>
+		/// Set velocity to 0 after character makes contact with the ground after jump or fall.
+		/// </summary>
+		private void Land()
+		{
+			currentVelocity = Vector3.zero;
+		}
+
+		/// <summary>
+		/// Rotates the character to be head up compared to gravity.
+		/// </summary>
+		/// <param name="up">Up direction. (i.e. Vector3.up)</param>
+		public void RotateGravity(Vector3 up)
+		{
+			lookDirection = Quaternion.FromToRotation(transform.up, up) * lookDirection;
+		}
+
+		/// <summary>
+		/// Rotate towards the direction the character is moving.
+		/// </summary>
+		private void RotateTowardsMovementDir()
         {
-            var movementVector = new Vector3(currentVelocity.x, 0, currentVelocity.z);
+            Vector3 movementVector = new Vector3(currentVelocity.x, 0, currentVelocity.z);
             if (movementVector.magnitude > 0.01f) {
-                transform.rotation = Quaternion.Slerp(transform.rotation,
-					Quaternion.LookRotation(movementVector),
-					Time.deltaTime * rotationSpeed);
+                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(movementVector), Time.deltaTime * rotationSpeed);
             }
         }
 
-        private void RotateTowardsTarget(Vector3 targetPosition)
+		/// <summary>
+		/// Rotate towards a point in space.  Used when Targeting/Strafing.
+		/// </summary>
+		private void RotateTowardsTarget(Vector3 targetPosition)
         {
-			if (debugMessages) { Debug.Log($"RotateTowardsTarget: {targetPosition}"); }
-			var lookTarget = new Vector3(targetPosition.x - transform.position.x, 0, targetPosition.z - transform.position.z);
+			Vector3 lookTarget = new Vector3(targetPosition.x - transform.position.x, 0, targetPosition.z - transform.position.z);
 			if (lookTarget != Vector3.zero) {
-				var targetRotation = Quaternion.LookRotation(lookTarget);
-				transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
+				Quaternion targetRotation = Quaternion.LookRotation(lookTarget);
+				transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
 			}
         }
-
-		private void RotateTowardsDirection(Vector3 direction)
-		{
-			if (debugMessages) { Debug.Log($"RotateTowardsDirection: {direction}"); }
-			var lookDirection = new Vector3(direction.x, 0, -direction.y);
-			var lookRotation = Quaternion.LookRotation(lookDirection, Vector3.up);
-			transform.rotation = Quaternion.Lerp(transform.rotation, lookRotation, Time.deltaTime * rotationSpeed);
-		}
 
 		/// <summary>
 		/// Exert a knockback force on the character. Used by the GetHit, Knockdown, and Knockback
@@ -449,21 +401,21 @@ namespace RPGCharacterAnims
 		/// <param name="knockBackAmount">Amount to knock back.</param>
 		/// <param name="variableAmount">Random variance in knockback.</param>
 		public void KnockbackForce(Vector3 knockDirection, float knockBackAmount, float variableAmount)
-        { StartCoroutine(_KnockbackForce(knockDirection, knockBackAmount, variableAmount)); }
+        {
+            StartCoroutine(_KnockbackForce(knockDirection, knockBackAmount, variableAmount));
+        }
 
         private IEnumerator _KnockbackForce(Vector3 knockDirection, float knockBackAmount, float variableAmount)
         {
             if (rb == null) { yield break; }
 
-            var startTime = Time.time;
-            var elapsed = 0f;
+            float startTime = Time.time;
+            float elapsed = 0f;
 
             rb.isKinematic = false;
 
             while (elapsed < .1f) {
-                rb.AddForce(knockDirection
-					* ((knockBackAmount + Random.Range(-variableAmount, variableAmount))
-					* knockbackMultiplier * 10), ForceMode.Impulse);
+                rb.AddForce(knockDirection * ((knockBackAmount + Random.Range(-variableAmount, variableAmount)) * knockbackMultiplier * 10), ForceMode.Impulse);
                 elapsed = Time.time - startTime;
                 yield return null;
             }
@@ -477,7 +429,7 @@ namespace RPGCharacterAnims
         public void LockMovement()
         {
             currentVelocity = new Vector3(0, 0, 0);
-            animator.SetBool(AnimationParameters.Moving, false);
+            animator.SetBool("Moving", false);
             animator.applyRootMotion = true;
         }
 
@@ -485,7 +437,9 @@ namespace RPGCharacterAnims
         /// Event listener for when RPGCharacterController.OnUnlockMovement is called.
         /// </summary>
         public void UnlockMovement()
-        { animator.applyRootMotion = false; }
+        {
+            animator.applyRootMotion = false;
+        }
 
         /// <summary>
         /// Event listener for when RPGCharacterAnimatorEvents.OnMove is called.
@@ -506,21 +460,8 @@ namespace RPGCharacterAnims
         /// </summary>
         public void IdleOnceAfterMoveUnlock()
         {
-            rpgCharacterController.StartAction(HandlerTypes.Idle);
+            rpgCharacterController.StartAction("Idle");
             rpgCharacterController.OnUnlockMovement -= IdleOnceAfterMoveUnlock;
-        }
-
-        /// <summary>
-        /// Event listener to instant switch once movement is unlocked, which executes only
-        /// once. Use with the RPGCharacterController.OnUnlockMovement event. This is used by
-        /// the Crawl->Crouch transition to get back into crouching.
-        ///
-        /// e.g.: rpgCharacterController.OnUnlockMovement += InstantSwitchOnceAfterMoveUnlock;
-        /// </summary>
-        public void InstantSwitchOnceAfterMoveUnlock()
-        {
-            animator.SetAnimatorTrigger(AnimatorTrigger.InstantSwitchTrigger);
-            rpgCharacterController.OnUnlockMovement -= InstantSwitchOnceAfterMoveUnlock;
         }
     }
 }

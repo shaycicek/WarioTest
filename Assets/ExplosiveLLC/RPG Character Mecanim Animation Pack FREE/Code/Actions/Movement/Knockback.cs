@@ -1,7 +1,6 @@
-using RPGCharacterAnims.Extensions;
-using RPGCharacterAnims.Lookups;
+using UnityEngine;
 
-namespace RPGCharacterAnims.Actions
+namespace RPGCharacterAnimsFREE.Actions
 {
     public class Knockback : MovementActionHandler<HitContext>
     {
@@ -10,30 +9,34 @@ namespace RPGCharacterAnims.Actions
         }
 
         public override bool CanStartAction(RPGCharacterController controller)
-        { return controller.canAction; }
+        {
+            return !controller.isKnockback;
+        }
 
         protected override void _StartAction(RPGCharacterController controller, HitContext context)
         {
-            var hitNumber = context.number;
-            var direction = context.direction;
-            var force = context.force;
-            var variableForce = context.variableForce;
+            int hitNumber = context.number;
+            Vector3 direction = context.direction;
+            float force = context.force;
+            float variableForce = context.variableForce;
 
             if (hitNumber == -1) {
-                hitNumber = (int)AnimationVariations.Knockbacks.TakeRandom();
-                direction = AnimationData.HitDirection((KnockbackType)hitNumber);
+                hitNumber = AnimationData.RandomHitNumber("Knockback");
+                direction = AnimationData.HitDirection("Knockback", hitNumber);
                 direction = controller.transform.rotation * direction;
-            }
-			else {
+            } else {
                 if (context.relative) { direction = controller.transform.rotation * direction; }
             }
 
-            controller.Knockback((KnockbackType)hitNumber);
+			controller.SetIKPause(1.25f);
+			controller.Knockback(hitNumber);
             movement.KnockbackForce(direction, force, variableForce);
-            movement.currentState = CharacterState.Knockback;
+            movement.currentState = RPGCharacterState.Knockback;
         }
 
         public override bool IsActive()
-        { return movement.currentState != null && (CharacterState)movement.currentState == CharacterState.Knockback; }
+        {
+            return movement.currentState != null && (RPGCharacterState)movement.currentState == RPGCharacterState.Knockback;
+        }
     }
 }

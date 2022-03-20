@@ -1,6 +1,6 @@
-using RPGCharacterAnims.Lookups;
+using UnityEngine;
 
-namespace RPGCharacterAnims.Actions
+namespace RPGCharacterAnimsFREE.Actions
 {
     public class Move : MovementActionHandler<EmptyContext>
     {
@@ -10,15 +10,19 @@ namespace RPGCharacterAnims.Actions
 
         public override bool CanStartAction(RPGCharacterController controller)
         {
-			return controller.canMove
-				&& controller.moveInput.sqrMagnitude > 0.1f
-				&& controller.maintainingGround;
+            return controller.canMove &&
+                   controller.moveInput != Vector3.zero &&
+                   controller.maintainingGround;
         }
 
         protected override void _StartAction(RPGCharacterController controller, EmptyContext context)
-        { movement.currentState = CharacterState.Move; }
+        {
+            movement.currentState = RPGCharacterState.Move;
+        }
 
         public override bool IsActive()
-        { return movement.currentState != null && (CharacterState)movement.currentState == CharacterState.Move; }
+        {
+            return movement.currentState != null && (RPGCharacterState)movement.currentState == RPGCharacterState.Move;
+        }
     }
 }

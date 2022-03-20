@@ -1,76 +1,106 @@
-using RPGCharacterAnims.Extensions;
-using RPGCharacterAnims.Lookups;
-
-namespace RPGCharacterAnims.Actions
+namespace RPGCharacterAnimsFREE.Actions
 {
-	public class Attack:BaseActionHandler<AttackContext>
-	{
-		public override bool CanStartAction(RPGCharacterController controller)
-		{ return !active && controller.canAction; }
+    public class AttackContext
+    {
+        public string type;
+        public int side;
+        public int number;
 
-		public override bool CanEndAction(RPGCharacterController controller)
-		{ return active; }
+        public AttackContext(string type, int side, int number = -1)
+        {
+            this.type = type;
+            this.side = side;
+            this.number = number;
+        }
 
-		protected override void _StartAction(RPGCharacterController controller, AttackContext context)
-		{
-			var attackSide = Side.None;
-			var attackNumber = context.number;
-			var weaponNumber = controller.rightWeapon;
-			var duration = 0f;
+        public AttackContext(string type, string side, int number = -1)
+        {
+            this.type = type;
+            this.number = number;
+            switch (side.ToLower()) {
+                case "none":
+                    this.side = (int)AttackSide.None;
+                    break;
+                case "left":
+                    this.side = (int)AttackSide.Left;
+                    break;
+                case "right":
+                    this.side = (int)AttackSide.Right;
+                    break;
+            }
+        }
+    }
 
-			if (context.Side == Side.Right && weaponNumber.Is2HandedWeapon()) { context.Side = Side.None; }
+    public class Attack : BaseActionHandler<AttackContext>
+    {
+        public override bool CanStartAction(RPGCharacterController controller)
+        {
+            return !active && controller.canAction;
+        }
 
-			switch (context.Side) {
-				case Side.None:
-					attackSide = context.Side;
-					weaponNumber = controller.rightWeapon;
-					break;
-				case Side.Left:
-					attackSide = context.Side;
-					weaponNumber = controller.leftWeapon;
-					break;
-				case Side.Right:
-					attackSide = context.Side;
-					weaponNumber = controller.rightWeapon;
-					break;
-			}
+        public override bool CanEndAction(RPGCharacterController controller)
+        {
+            return active;
+        }
 
-			if (attackNumber == -1) {
-				switch (context.type) {
-					case "Attack":
-						attackNumber = AnimationData.RandomAttackNumber(attackSide, weaponNumber);
-						break;
-					case "Special":
-						attackNumber = 1;
-						break;
-				}
-			}
+        protected override void _StartAction(RPGCharacterController controller, AttackContext context)
+        {
+            int attackSide = 0;
+            int attackNumber = context.number;
+            int weaponNumber = controller.rightWeapon;
+            float duration = 0f;
 
-			duration = AnimationData.AttackDuration(attackSide, weaponNumber, attackNumber);
+            if (context.side == (int)AttackSide.Right && AnimationData.Is2HandedWeapon(weaponNumber)) { context.side = (int)AttackSide.None; }
 
-			if (controller.isMoving) {
-				controller.RunningAttack(
-					attackSide,
-					false,
-					false,
-					controller.hasTwoHandedWeapon
-				);
-				EndAction(controller);
-			}
-			else if (context.type == "Attack") {
-				controller.Attack(
-					attackNumber,
-					attackSide,
-					controller.leftWeapon,
-					controller.rightWeapon,
-					duration
-				);
-				EndAction(controller);
-			}
-		}
+            switch (context.side) {
+                case (int)AttackSide.None:
+                    attackSide = 0;
+                    weaponNumber = controller.rightWeapon;
+                    break;
+                case (int)AttackSide.Left:
+                    attackSide = 1;
+                    weaponNumber = controller.leftWeapon;
+                    break;
+                case (int)AttackSide.Right:
+                    attackSide = 2;
+                    weaponNumber = controller.rightWeapon;
+                    break;
+            }
 
-		protected override void _EndAction(RPGCharacterController controller)
-		{
-		}
-	}
+            if (attackNumber == -1) {
+                switch (context.type) {
+                    case "Attack":
+                        attackNumber = AnimationData.RandomAttackNumber(attackSide, weaponNumber);
+                        break;
+                    case "Kick":
+                        attackNumber = AnimationData.RandomKickNumber(attackSide);
+                        break;
+                }
+            }
+
+            duration = AnimationData.AttackDuration(attackSide, weaponNumber, attackNumber);
+
+            if (controller.isMoving) {
+                controller.RunningAttack(
+                    attackSide,
+                    controller.hasLeftWeapon,
+                    controller.hasRightWeapon,
+                    controller.hasTwoHandedWeapon
+                );
+                EndAction(controller);
+            } else if (context.type == "Attack") {
+                controller.Attack(
+                    attackNumber,
+                    controller.leftWeapon,
+                    controller.rightWeapon,
+                    duration
+                );
+                EndAction(controller);
+            }
+        }
+
+        protected override void _EndAction(RPGCharacterController controller)
+        {
+        }
+    }
 }

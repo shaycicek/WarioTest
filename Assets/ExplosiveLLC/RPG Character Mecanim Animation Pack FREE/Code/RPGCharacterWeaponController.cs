@@ -1,261 +1,243 @@
 using System.Collections;
-using RPGCharacterAnims.Actions;
-using RPGCharacterAnims.Extensions;
-using RPGCharacterAnims.Lookups;
 using UnityEngine;
 
-namespace RPGCharacterAnims
+namespace RPGCharacterAnimsFREE
 {
     public class RPGCharacterWeaponController : MonoBehaviour
     {
-		// Components.
         private RPGCharacterController rpgCharacterController;
         private Animator animator;
         private CoroutineQueue coroQueue;
 
-		[Header("Debug Options")]
-		public bool debugWalkthrough = true;
-		public bool debugSwitchWeaponContext = true;
-		public bool debugDoWeaponSwitch = true;
-		public bool debugWeaponVisibility = true;
-		public bool debugSetAnimator = true;
+        // Weapon Parameters.
+        [HideInInspector] bool isWeaponSwitching = false;
 
-		[HideInInspector] bool isWeaponSwitching = false;
-
-		[Header("Weapon Models")]
+        // Weapon Models.
         public GameObject twoHandSword;
 
         private void Awake()
         {
             coroQueue = new CoroutineQueue(1, StartCoroutine);
             rpgCharacterController = GetComponent<RPGCharacterController>();
-            rpgCharacterController.SetHandler(HandlerTypes.SwitchWeapon, new SwitchWeapon());
+            rpgCharacterController.SetHandler("SwitchWeapon", new Actions.SwitchWeapon());
 
             // Find the Animator component.
             animator = GetComponentInChildren<Animator>();
-
-			// Character starts in Unarmed so hide all weapons.
             StartCoroutine(_HideAllWeapons(false, false));
         }
 
         private void Start()
         {
             // Listen for the animator's weapon switch event.
-            var animatorEvents = animator.gameObject.GetComponent<RPGCharacterAnimatorEvents>();
+            RPGCharacterAnimatorEvents animatorEvents = animator.gameObject.GetComponent<RPGCharacterAnimatorEvents>();
             animatorEvents.OnWeaponSwitch.AddListener(WeaponSwitch);
-		}
+        }
 
         /// <summary>
         /// Add a callback to the coroutine queue to be executed in sequence.
         /// </summary>
         /// <param name="callback">The action to call.</param>
         public void AddCallback(System.Action callback)
-        { coroQueue.RunCallback(callback); }
+        {
+            coroQueue.RunCallback(callback);
+        }
 
         /// <summary>
         /// Queue a command to unsheath a weapon.
         /// </summary>
-        /// <param name="weapon">Weapon to unsheath.</param>
-        public void UnsheathWeapon(Weapon weapon)
+        /// <param name="weaponNumber">Weapon to unsheath.</param>
+        /// <param name="dual">Whether to unsheath the same weapon in the other hand.</param>
+        public void UnsheathWeapon(int weaponNumber, bool dual)
         {
-			if (debugWalkthrough) { Debug.Log("UnsheathWeapon:" + weapon); }
-			coroQueue.Run(_UnSheathWeapon(weapon));
+            coroQueue.Run(_UnSheathWeapon(weaponNumber));
         }
 
         /// <summary>
         /// Async method to unsheath a weapon.
         /// </summary>
-        /// <param name="weapon">Weapon to unsheath.</param>
+        /// <param name="weaponNumber">Weapon to unsheath.</param>
         /// <returns>IEnumerator for use with StartCoroutine.</returns>
-        private IEnumerator _UnSheathWeapon(Weapon weapon)
+        private IEnumerator _UnSheathWeapon(int weaponNumber)
         {
-			if (debugWalkthrough) { Debug.Log($"UnsheathWeapon - weapon:{weapon}"); }
-
+            Debug.Log("UnsheathWeapon:" + weaponNumber);
             isWeaponSwitching = true;
 
-			var currentAnimatorWeapon = ( AnimatorWeapon )animator.GetInteger(AnimationParameters.Weapon);
-			var currentWeaponType = (Weapon) animator.GetInteger(AnimationParameters.Weapon);
+            // Switching to 2handed weapon.
+            if (AnimationData.Is2HandedWeapon(weaponNumber)) {
 
-            // Switching to 2Handed weapon.
-            if (weapon.Is2HandedWeapon()) {
-				if (debugWalkthrough) { Debug.Log($"Switching to 2Handed Weapon:{weapon}"); }
-
-				// Switching from 2Handed weapon.
-				if (currentWeaponType.Is2HandedWeapon()) {
-					if (debugWalkthrough) { Debug.Log("Switching from 2Handed weapon."); }
-					DoWeaponSwitch(( int )AnimatorWeapon.UNARMED, weapon, weapon.ToAnimatorWeapon(), Side.Unchanged, false);
-
-					// Wait for WeaponSwitch() to happen then update Animator.
-					yield return new WaitForSeconds(0.75f);
-					SetWeaponWithDebug(weapon.ToAnimatorWeapon(), -2, currentWeaponType, Weapon.Unarmed, Side.Unchanged);
-				}
-				else {
-                    DoWeaponSwitch(( int )AnimatorWeapon.UNARMED, weapon, weapon.ToAnimatorWeapon(), Side.Unchanged, false);
-
-					// Wait for WeaponSwitch() to happen then update Animator.
-					yield return new WaitForSeconds(0.75f);
-					SetWeaponWithDebug(weapon.ToAnimatorWeapon(), -2, weapon, Weapon.Unarmed, Side.Unchanged);
-				}
-			}
+                // Switching from 2handed weapon.
+                if (AnimationData.Is2HandedWeapon(animator.GetInteger("Weapon"))) {
+                    DoWeaponSwitch(0, weaponNumber, weaponNumber, -1, false);
+                    yield return new WaitForSeconds(0.75f);
+                    SetAnimator(weaponNumber, -2, animator.GetInteger("Weapon"), -1, -1);
+                } else {
+                    DoWeaponSwitch(animator.GetInteger("Weapon"), weaponNumber, weaponNumber, -1, false);
+                    yield return new WaitForSeconds(0.75f);
+                    SetAnimator(weaponNumber, -2, weaponNumber, -1, -1);
+                }
+            }
+            yield return null;
         }
 
-		/// <summary>
-		/// Queue a command to sheath the current weapon and switch to a new one.
-		/// </summary>
-		/// <param name="fromWeapon">Which weapon to sheath.</param>
-		/// <param name="toWeapon">Target weapon if immediately unsheathing new weapon.</param>
-		public void SheathWeapon(Weapon fromWeapon, Weapon toWeapon)
+        /// <summary>
+        /// Queue a command to sheath the current weapon and switch to a new one.
+        /// </summary>
+        /// <param name="fromWeapon">Which weapon to sheath.</param>
+        /// <param name="toWeapon">Target weapon if immediately unsheathing new weapon.</param>
+        /// <param name="dual">Whether to sheath both weapons at once.</param>
+        public void SheathWeapon(int fromWeapon, int toWeapon, bool dual)
         {
-			if (debugWalkthrough) { Debug.Log($"SheathWeapon - fromWeapon:{fromWeapon}  toWeapon:{toWeapon}"); }
             coroQueue.Run(_SheathWeapon(fromWeapon, toWeapon));
         }
 
         /// <summary>
         /// Async method to sheath the current weapon and switch to a new one.
         /// </summary>
-        /// <param name="weaponToSheath">Which weapon to sheath.</param>
-        /// <param name="weaponToUnsheath">Target weapon if immediately unsheathing a new weapon.</param>
+        /// <param name="weaponNumber">Which weapon to sheath.</param>
+        /// <param name="weaponTo">Target weapon if immediately unsheathing a new weapon.</param>
         /// <returns>IEnumerator for use with StartCoroutine.</returns>
-        public IEnumerator _SheathWeapon(Weapon weaponToSheath, Weapon weaponToUnsheath)
+        public IEnumerator _SheathWeapon(int weaponNumber, int weaponTo)
         {
-			if (debugWalkthrough) { Debug.Log($"Sheath Weapon - weaponToSheath:{weaponToSheath}  weaponToUnsheath:{weaponToUnsheath}"); }
+            Debug.Log("Sheath Weapon:" + weaponNumber + "   Weapon To:" + weaponTo);
 
-            var currentWeaponType = (Weapon) animator.GetInteger(AnimationParameters.Weapon);
-			var currentAnimatorWeapon = ( AnimatorWeapon )animator.GetInteger(AnimationParameters.Weapon);
+            // Reset for animation events.
+            isWeaponSwitching = true;
 
-			// Reset for animation events.
-			isWeaponSwitching = true;
+            //Switching to Unarmed or Relaxed.
+            if (weaponTo < 1) {
 
-            // Putting away a weapon.
-            if (weaponToUnsheath.HasNoWeapon()) {
-				if (debugWalkthrough) { Debug.Log("Putting away a weapon."); }
+                // Have at least 1 weapon.
+                if (rpgCharacterController.rightWeapon != 0 || rpgCharacterController.leftWeapon != 0) {
 
-				// Have at least 1 weapon.
-				if (rpgCharacterController.rightWeapon.HasEquippedWeapon()
-					|| rpgCharacterController.leftWeapon.HasEquippedWeapon()) {
+                    // Sheath 2handed weapon.
+                    if (AnimationData.Is2HandedWeapon(weaponNumber)) {
+                        DoWeaponSwitch(weaponTo, weaponNumber, animator.GetInteger("Weapon"), -1, true);
+                        yield return new WaitForSeconds(0.5f);
+                        SetAnimator(weaponTo, -2, 0, 0, -1);
+                    }
+                }
+            }
+            // Switching to 2handed weapon.
+            else if (AnimationData.Is2HandedWeapon(weaponTo)) {
 
-					if (debugWalkthrough) { Debug.Log("Sheath 2Handed weapon."); }
-					DoWeaponSwitch(( int )weaponToUnsheath, weaponToSheath, currentAnimatorWeapon, Side.Unchanged, true);
-
-					// Wait for WeaponSwitch() to happen then update Animator.
-					yield return new WaitForSeconds(0.55f);
-					SetWeaponWithDebug(weaponToUnsheath.ToAnimatorWeapon(), -2, Weapon.Unarmed, Weapon.Unarmed, Side.Unchanged);
-				}
-			}
+                DoWeaponSwitch(0, weaponNumber, animator.GetInteger("Weapon"), -1, true);
+                yield return new WaitForSeconds(0.5f);
+                SetAnimator(weaponNumber, -2, weaponNumber, 0, -1);
+            }
+            yield return null;
         }
 
         /// <summary>
         /// Switch to the weapon number instantly.
         /// </summary>
-        /// <param name="weapon">Weapon to switch to.</param>
-        public void InstantWeaponSwitch(Weapon weapon)
-        { coroQueue.Run(_InstantWeaponSwitch(weapon)); }
+        /// <param name="weaponNumber">Weapon to switch to.</param>
+        public void InstantWeaponSwitch(int weaponNumber)
+        {
+            coroQueue.Run(_InstantWeaponSwitch(weaponNumber));
+        }
 
-		/// <summary>
-		/// Async method to instant weapon switch.
-		/// </summary>
-		/// <param name="weaponNumber">Weapon number to switch to.</param>
-		/// <returns>IEnumerator for use with StartCoroutine.</returns>
-		/// /// <summary>
-		public IEnumerator _InstantWeaponSwitch(Weapon weapon)
-		{
-			if (debugWalkthrough) { Debug.Log($"_InstantWeaponSwitch:{weapon}"); }
-			animator.SetAnimatorTrigger(AnimatorTrigger.InstantSwitchTrigger);
+        /// <summary>
+        /// Async method to instant weapon switch.
+        /// </summary>
+        /// <param name="weaponNumber">Weapon number to switch to.</param>
+        /// <returns>IEnumerator for use with StartCoroutine.</returns>
+        /// /// <summary>
+        public IEnumerator _InstantWeaponSwitch(int weaponNumber)
+        {
+            Debug.Log("_InstantWeaponSwitch:" + weaponNumber);
+            rpgCharacterController.SetAnimatorTrigger(AnimatorTrigger.InstantSwitchTrigger);
 			rpgCharacterController.SetIKOff();
-			StartCoroutine(_HideAllWeapons(false, false));
 
-			// 2Handed.
-			if (weapon.Is2HandedWeapon()) {
-				if (debugWalkthrough) { Debug.Log($"InstantSwitch to 2HandedWeapon - weapon:{weapon}"); }
+            // 2Handed.
+            if (AnimationData.Is2HandedWeapon(weaponNumber)) {
+                animator.SetInteger("Weapon", weaponNumber);
+                rpgCharacterController.rightWeapon = 0;
+                rpgCharacterController.leftWeapon = 0;
+                animator.SetInteger("LeftWeapon", 0);
+                animator.SetInteger("RightWeapon", 0);
+                StartCoroutine(_HideAllWeapons(false, false));
+                StartCoroutine(_WeaponVisibility(weaponNumber, true, false));
+				if (AnimationData.IsIKWeapon(weaponNumber)) { rpgCharacterController.SetIKOn(); }
+            }
+            // Switching to Unarmed or Relax.
+            else {
+                animator.SetInteger("Weapon", weaponNumber);
+                rpgCharacterController.rightWeapon = 0;
+                rpgCharacterController.leftWeapon = 0;
+                animator.SetInteger("LeftWeapon", 0);
+                animator.SetInteger("RightWeapon", 0);
+                animator.SetInteger("LeftRight", 0);
+                StartCoroutine(_HideAllWeapons(false, false));
+            }
+            yield return null;
+        }
 
-				// 2Handed weapons map directly to AnimatorWeapon.
-				animator.SetInteger(AnimationParameters.Weapon, ( int )weapon);
-				rpgCharacterController.rightWeapon = Weapon.Unarmed;
-				rpgCharacterController.leftWeapon = Weapon.Unarmed;
-				animator.SetInteger(AnimationParameters.LeftWeapon, 0);
-				animator.SetInteger(AnimationParameters.RightWeapon, 0);
-				StartCoroutine(_HideAllWeapons(false, false));
-				StartCoroutine(_WeaponVisibility(weapon, true));
+        private void DoWeaponSwitch(int weaponSwitch, int weaponVisibility, int weaponNumber, int leftRight, bool sheath)
+        {
+            Debug.Log("DoWeaponSwitch:" + weaponSwitch + "   WeaponVisibility:" + weaponVisibility + "   WeaponNumber:" + weaponNumber + "   LeftRight:" + leftRight + "   Sheath:" + sheath);
 
-				if (weapon.IsIKWeapon())
-				{ rpgCharacterController.SetIKOn(( Weapon )animator.GetInteger(AnimationParameters.Weapon)); }
-			}
-			// Switching to Unarmed or Relax which map directly.
-			else {
-				animator.SetInteger(AnimationParameters.Weapon, ( int )weapon);
-				rpgCharacterController.rightWeapon = Weapon.Unarmed;
-				rpgCharacterController.leftWeapon = Weapon.Unarmed;
-				animator.SetInteger(AnimationParameters.LeftWeapon, 0);
-				animator.SetInteger(AnimationParameters.RightWeapon, 0);
-				animator.SetInteger(AnimationParameters.Side, 0);
-				StartCoroutine(_HideAllWeapons(false, false));
-			}
-			yield return null;
-		}
+            // Lock character for switch unless has moving sheath/unsheath anims.
+            if (weaponSwitch < 1) {
+                if (AnimationData.Is2HandedWeapon(weaponNumber)) { rpgCharacterController.Lock(true, true, true, 0f, 1f); }
+            } else if (AnimationData.Is1HandedWeapon(weaponSwitch)) {
+                rpgCharacterController.Lock(true, true, true, 0f, 1f);
+            }
+            // Set weaponSwitch if applicable.
+            if (weaponSwitch != -2) { animator.SetInteger("WeaponSwitch", weaponSwitch); }
 
-		/// <summary>
-		/// Performs the weapon switch by setting Animator parameters then triggering Sheath or Unsheath animation.
-		/// </summary>
-		/// <param name="weaponSwitch">AnimatorWeapon switching from.</param>
-		/// <param name="weapon">The weapon switching to.</param>
-		/// <param name="animatorWeapon">Weapon enum switching to.</param>
-		/// <param name="side">Weapon side. -1=Leave existing, 1=Left, 2=Right, 3=Dual</param>
-		/// <param name="sheath">"sheath" or "unsheath".</param>
-		private void DoWeaponSwitch(int weaponSwitch, Weapon weapon, AnimatorWeapon animatorWeapon, Side side, bool sheath)
-		{
-			if (debugDoWeaponSwitch)
-			{ Debug.Log($"DO WEAPON SWITCH - weaponSwitch:{weaponSwitch}  weapon:{weapon}  animatorWeapon:{animatorWeapon}  side:{side}  sheath:{sheath}"); }
+            animator.SetInteger("Weapon", weaponNumber);
 
-			// Lock character movement for switch unless has moving sheath/unsheath anims.
-			rpgCharacterController.Lock(!rpgCharacterController.isMoving, true, true, 0f, 1f);
+            // Set leftRight if applicable.
+            if (leftRight != -1) { animator.SetInteger("LeftRight", leftRight); }
+            // Set animator trigger.
+            if (sheath) {
+                rpgCharacterController.SetAnimatorTrigger(AnimatorTrigger.WeaponSheathTrigger);
+                StartCoroutine(_WeaponVisibility(weaponVisibility, false, false));
 
-			// Set WeaponSwitch and Weapon.
-			animator.SetInteger(AnimationParameters.WeaponSwitch, weaponSwitch);
-			animator.SetInteger(AnimationParameters.Weapon, ( int )animatorWeapon);
+                // If using IKHands, trigger IK blend.
+                if (rpgCharacterController.ikHands != null) { rpgCharacterController.ikHands.BlendIK(false, 0f, 0.2f); }
+            } else {
+                rpgCharacterController.SetAnimatorTrigger(AnimatorTrigger.WeaponUnsheathTrigger);
+                StartCoroutine(_WeaponVisibility(weaponVisibility, true, false));
 
-			// Set LeftRight if applicable.
-			if (side != Side.Unchanged) { animator.SetInteger(AnimationParameters.Side, ( int )side); }
+                // If using IKHands, trigger IK blend.
+                if (rpgCharacterController.ikHands != null) { rpgCharacterController.ikHands.BlendIK(true, 0.75f, 1); }
+            }
+        }
 
-			// Sheath.
-			if (sheath) {
-				animator.SetAnimatorTrigger(AnimatorTrigger.WeaponSheathTrigger);
-				StartCoroutine(_WeaponVisibility(weapon, false));
+        /// <summary>
+        /// Sets the animator state. This method is very close to the metal, it's recommended that you use
+        /// other entry points rather than calling this directly.
+        /// </summary>
+        /// <param name="weapon">Animator weapon number. Use AnimationData's AnimatorWeapon enum.</param>
+        /// <param name="weaponSwitch">Weapon switch.</param>
+        /// <param name="Lweapon">Left weapon number. Use AnimationData's Weapon enum.</param>
+        /// <param name="Rweapon">Right weapon number. Use AnimationData's Weapon enum.</param>
+        /// <param name="weaponSide">Weapon side: 0- None, 1- Left, 2- Right, 3- Dual.</param>
+        public void SetAnimator(int weapon, int weaponSwitch, int Lweapon, int Rweapon, int weaponSide)
+        {
+            Debug.Log("SetAnimator - Weapon:" + weapon + "   Weaponswitch:" + weaponSwitch + "   Lweapon:" + Lweapon + "   Rweapon:" + Rweapon + "   Weaponside:" + weaponSide);
 
-				// If using IKHands, trigger IK blend.
-				if (rpgCharacterController.ikHands != null)
-				{ rpgCharacterController.ikHands.BlendIK(false, 0f, 0.2f, weapon); }
+            // Set Weapon if applicable.
+            if (weapon != -2) { animator.SetInteger("Weapon", weapon); }
 
-			}
-			// Unsheath.
-			else {
-				animator.SetAnimatorTrigger(AnimatorTrigger.WeaponUnsheathTrigger);
-				StartCoroutine(_WeaponVisibility(weapon, true));
+			// Set WeaponSwitch if applicable.
+            if (weaponSwitch != -2) { animator.SetInteger("WeaponSwitch", weaponSwitch); }
 
-				// If using IKHands and IK weapon, trigger IK blend.
-				if (rpgCharacterController.ikHands != null && weapon.IsIKWeapon())
-				{ rpgCharacterController.ikHands.BlendIK(true, 0.75f, 1, weapon); }
-			}
-		}
+			// Set left weapon if applicable.
+            if (Lweapon != -1) { animator.SetInteger("LeftWeapon", Lweapon); }
 
-		/// <summary>
-		/// Sets the animation state for weapons with debug option.
-		/// </summary>
-		/// <param name="animatorWeapon">Animator weapon number. Use AnimationData's AnimatorWeapon enum.</param>
-		/// <param name="weaponSwitch">Weapon switch. -2 leaves parameter unchanged.</param>
-		/// <param name="leftWeapon">Left weapon number. Use Weapon.cs enum.</param>
-		/// <param name="rightWeapon">Right weapon number. Use Weapon.cs enum.</param>
-		/// <param name="weaponSide">Weapon side: 0-None, 1-Left, 2-Right, 3-Dual.</param>
-		private void SetWeaponWithDebug(AnimatorWeapon animatorWeapon, int weaponSwitch, Weapon leftWeapon, Weapon rightWeapon, Side weaponSide)
-		{
-			if (debugSetAnimator) { Debug.Log($"SET ANIMATOR - Weapon:{animatorWeapon}  WeaponSwitch:{weaponSwitch}  Lweapon:{leftWeapon}  Rweapon:{rightWeapon}  Weaponside:{weaponSide}"); }
+			// Set right weapon if applicable.
+            if (Rweapon != -1) { animator.SetInteger("RightWeapon", Rweapon); }
 
-			animator.SetWeapons(animatorWeapon, weaponSwitch, leftWeapon, rightWeapon, weaponSide);
-		}
+			// Set weapon side if applicable.
+            if (weaponSide != -1) { animator.SetInteger("LeftRight", weaponSide); }
+        }
 
-		/// <summary>
-		/// Callback to use with Animator's WeaponSwitch event.
-		/// </summary>
-		public void WeaponSwitch()
+        /// <summary>
+        /// Callback to use with Animator's WeaponSwitch event.
+        /// </summary>
+        public void WeaponSwitch()
         {
             if (isWeaponSwitching) { isWeaponSwitching = false; }
         }
@@ -275,7 +257,9 @@ namespace RPGCharacterAnims
         /// Hide all weapon objects and set the animator and the character controller to the unarmed state.
         /// </summary>
         public void HideAllWeapons()
-        { StartCoroutine(_HideAllWeapons(false, true)); }
+        {
+            StartCoroutine(_HideAllWeapons(false, true));
+        }
 
         /// <summary>
         /// Async method to all weapon objects and set the animator and the character controller to the unarmed state.
@@ -285,17 +269,18 @@ namespace RPGCharacterAnims
         /// <returns>IEnumerator for use with StartCoroutine.</returns>
         public IEnumerator _HideAllWeapons(bool timed, bool resetToUnarmed)
         {
-            if (timed) { while (!isWeaponSwitching) { yield return null; } }
-
+            if (timed) {
+                while (!isWeaponSwitching) { yield return null; }
+            }
             // Reset to Unarmed.
             if (resetToUnarmed) {
-                animator.SetInteger(AnimationParameters.Weapon, 0);
-                rpgCharacterController.rightWeapon = Weapon.Unarmed;
-                rpgCharacterController.leftWeapon = Weapon.Unarmed;
-                StartCoroutine(_WeaponVisibility(rpgCharacterController.leftWeapon, false));
-                animator.SetInteger(AnimationParameters.RightWeapon, 0);
-                animator.SetInteger(AnimationParameters.LeftWeapon, 0);
-                animator.SetSide(Side.None);
+                animator.SetInteger("Weapon", 0);
+                rpgCharacterController.rightWeapon = (int)Weapon.Unarmed;
+                rpgCharacterController.leftWeapon = (int)Weapon.Unarmed;
+                StartCoroutine(_WeaponVisibility(rpgCharacterController.leftWeapon, false, true));
+                animator.SetInteger("RightWeapon", 0);
+                animator.SetInteger("LeftWeapon", 0);
+                animator.SetInteger("LeftRight", 0);
             }
             SafeSetVisibility(twoHandSword, false);
         }
@@ -306,13 +291,11 @@ namespace RPGCharacterAnims
         /// <param name="weaponNumber">Weapon object to set.</param>
         /// <param name="visible">Whether to set it visible or not.</param>
         /// <param name="dual">Whether to update the same weapon in the other hand as well.</param>
-        public IEnumerator _WeaponVisibility(Weapon weaponNumber, bool visible)
+        public IEnumerator _WeaponVisibility(int weaponNumber, bool visible, bool dual)
         {
-			if (debugWeaponVisibility) { Debug.Log($"WeaponVisibility:{weaponNumber}   Visible:{visible}"); }
-
-			while (isWeaponSwitching) { yield return null; }
-            var weaponType = (Weapon)weaponNumber;
-			switch (weaponType) { case Weapon.TwoHandSword: SafeSetVisibility(twoHandSword, visible); break; }
+            Debug.Log("WeaponVisibility:" + weaponNumber + "   Visible:" + visible + "   Dual:" + dual);
+            while (isWeaponSwitching) { yield return null; }
+            if (weaponNumber == 1) { SafeSetVisibility(twoHandSword, visible); }
             yield return null;
         }
 
@@ -320,7 +303,9 @@ namespace RPGCharacterAnims
         /// Sync weapon object visibility to the current weapons in the RPGCharacterController.
         /// </summary>
         public void SyncWeaponVisibility()
-        { coroQueue.Run(_SyncWeaponVisibility()); }
+        {
+            coroQueue.Run(_SyncWeaponVisibility());
+        }
 
         /// <summary>
         /// Async method to sync weapon object visiblity to the current weapons in RPGCharacterController.
@@ -330,16 +315,16 @@ namespace RPGCharacterAnims
         /// <returns>IEnumerator for use with.</returns>
         private IEnumerator _SyncWeaponVisibility()
         {
-            while (isWeaponSwitching && !(rpgCharacterController.canAction && rpgCharacterController.canMove))
-			{ yield return null; }
+            while (isWeaponSwitching && !(rpgCharacterController.canAction && rpgCharacterController.canMove)) { yield return null; }
 
-            StopCoroutine(nameof(_HideAllWeapons));
-            StopCoroutine(nameof(_WeaponVisibility));
+            StopCoroutine("_HideAllWeapons");
+            StopCoroutine("_WeaponVisibility");
 
             SafeSetVisibility(twoHandSword, false);
 
-            var rightWeaponType = (Weapon)rpgCharacterController.rightWeapon;
-            switch (rightWeaponType) { case Weapon.TwoHandSword: SafeSetVisibility(twoHandSword, true); break; }
+            switch (rpgCharacterController.rightWeapon) {
+                case (int)Weapon.TwoHandSword: SafeSetVisibility(twoHandSword, true); break;
+            }
         }
     }
 }

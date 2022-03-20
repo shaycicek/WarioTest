@@ -76,7 +76,6 @@ public class SimpleStateMachine:MonoBehaviour
 
 	private T ConfigureDelegate<T>(string methodRoot, T Default) where T : class
 	{
-
 		if (!_cache.TryGetValue(state.currentState, out Dictionary<string, Delegate> lookup)) {
 			_cache[state.currentState] = lookup = new Dictionary<string, Delegate>();
 		}
@@ -95,9 +94,7 @@ public class SimpleStateMachine:MonoBehaviour
 	private void Update()
 	{
 		EarlyGlobalSuperUpdate();
-
 		state.DoUpdate();
-
 		LateGlobalSuperUpdate();
 	}
 
