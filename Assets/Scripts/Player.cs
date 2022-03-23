@@ -16,7 +16,6 @@ public class Player : MonoBehaviour
     public int pHealth = 150;
     public int curHealth;
     public Transform turret;
-    public float pRadius;
     public GameObject restartBut;
     private float timer;
 
@@ -35,6 +34,8 @@ public class Player : MonoBehaviour
     void Start()
     {
         Instance = this;
+        healthBar = gameManager.instance.healthBar;
+        bulletParnt = gameManager.instance.FriendlybulletParent;
         soldierLimit = 10;
         curHealth = pHealth;
         healthBar.SetMaxHealth(pHealth);
@@ -52,7 +53,7 @@ public class Player : MonoBehaviour
         if (enemyInAttackRange)
         {
             pFiring = true;
-            attackEnemy();
+            AttackEnemy();
         } else
         {
             pFiring = false;
@@ -64,13 +65,15 @@ public class Player : MonoBehaviour
             deathEff.gameObject.SetActive(true);
             timer += Time.deltaTime;
             isDead = true;
-            Debug.Log(isDead);
             if (timer > 1)
             {
-                
-                Destroy(gameObject);
-                Time.timeScale = 0;
+                gameObject.SetActive(false);
                 restartBut.SetActive(true);
+                Time.timeScale = 0;
+                Destroy(gameObject);
+                
+                
+                
             }
         }
         
@@ -88,7 +91,7 @@ public class Player : MonoBehaviour
         
     }
 
-    private void attackEnemy()
+    private void AttackEnemy()
     {
         if (!alreadyAttacked)
         {
@@ -128,7 +131,7 @@ public class Player : MonoBehaviour
 
     }
 
-    public void addToList(Soldier soldier)
+    public void AddToList(Soldier soldier)
     {
         fsoldierList.Add(soldier);
     }

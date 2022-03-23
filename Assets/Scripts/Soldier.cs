@@ -33,7 +33,7 @@ public class Soldier : MonoBehaviour
     public float sightRange, attackRange;
     public bool enemyInAttackRange;
 
-    public LayerMask whatIsEnemy, whatIsFriend,whatIsGround;
+    public LayerMask whatIsEnemy, whatIsFriend,whatIsGround,whatIsBase;
 
     //Patroling
     public Vector3 walkPoint;
@@ -187,7 +187,7 @@ public class Soldier : MonoBehaviour
         alreadyAttacked = false;
     }
 
-
+        
     public GameObject FindClosestEnemy()
     {
         GameObject[] gos;
@@ -213,8 +213,19 @@ public class Soldier : MonoBehaviour
         float randomZ = Random.Range(-walkPointRange, walkPointRange);
         float randomX = Random.Range(-walkPointRange, walkPointRange);
         walkPoint = new Vector3(transform.position.x + randomX, transform.position.y, transform.position.z + randomZ);
+
+        /* RaycastHit hit;
+        // Does the ray intersect any objects excluding the player layer
+        if (Physics.Raycast(walkPoint, -transform.up, out hit, Mathf.Infinity, whatIsBase))
+        {
+            Debug.DrawRay(walkPoint, -transform.up * hit.distance, Color.blue);
+            Debug.Log("Did Hit");
+        } */
+
+
         if (Physics.Raycast(walkPoint, -transform.up, 2f, whatIsGround))
         {
+            
             walkPointSet = true;
         }
     }
@@ -256,9 +267,9 @@ public class Soldier : MonoBehaviour
         upgradeButton = gameManager.instance.upgradeButton;
         p1 = gameManager.instance.p1;
         particle = gameManager.instance.particle;
-        pCollider = p1.GetComponent<SphereCollider>();
+        pCollider = gameManager.instance.pCollider;
         FriendlybulletParent = gameManager.instance.FriendlybulletParent;
-        p1.pRadius = particle.shape.radius;  //Particle temp starting size 
+
         agent = GetComponent<NavMeshAgent>();
         
         if (gameObject.layer == LayerMask.NameToLayer("Soldier"))
@@ -288,7 +299,7 @@ public class Soldier : MonoBehaviour
         gameObject.tag = "FriendlySoldier";
 
         //List ekleme
-        p1.addToList(this);
+        p1.AddToList(this);
 
 
         pos = Random.insideUnitSphere * pCollider.radius;

@@ -178,6 +178,9 @@ MonoBehaviour:
   whatIsGround:
     serializedVersion: 2
     m_Bits: 32768
+  whatIsBase:
+    serializedVersion: 2
+    m_Bits: 8192
   walkPoint: {x: 0, y: 0, z: 0}
   walkPointRange: 10
   projectile: {fileID: 0}

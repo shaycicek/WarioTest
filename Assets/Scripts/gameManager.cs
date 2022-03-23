@@ -13,7 +13,9 @@ public class gameManager : MonoBehaviour
     public GameObject FriendlybulletParent;
     public ParticleSystem particle;
     public GameObject enemyBulletParent;
-
+    public SphereCollider pCollider;
+    public HealthBar healthBar;
+  
     // Start is called before the first frame update
     private void Awake()
     {

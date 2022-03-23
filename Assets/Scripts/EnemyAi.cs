@@ -62,7 +62,7 @@ public class EnemyAi : MonoBehaviour
         playerInsightRange = Physics.CheckSphere(transform.position, sightRange, whatIsPlayer);
         playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, whatIsPlayer);
 
-        if (!isDead)
+        if (!isDead && !p1.isDead)
         {
             if (!playerInsightRange && !playerInAttackRange)
             {
