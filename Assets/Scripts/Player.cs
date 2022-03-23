@@ -5,6 +5,7 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     public ParticleSystem deathEff;
+    public bool isDead;
     public ParticleSystem shotEff;
     public bool pFiring;
     public static Player Instance;
@@ -60,11 +61,13 @@ public class Player : MonoBehaviour
         //StartCoroutine(nameof(attackRoutine));
         if (curHealth<= 0)
         {
-            
             deathEff.gameObject.SetActive(true);
             timer += Time.deltaTime;
+            isDead = true;
+            Debug.Log(isDead);
             if (timer > 1)
             {
+                
                 Destroy(gameObject);
                 Time.timeScale = 0;
                 restartBut.SetActive(true);
@@ -165,6 +168,10 @@ public class Player : MonoBehaviour
     public bool getFiringBool()
     {
         return pFiring;
+    }
+    public bool GetDeadBool()
+    {
+        return isDead;
     }
 
     private IEnumerator attackRoutine()

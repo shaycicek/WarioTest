@@ -156,12 +156,8 @@ public class EnemyAi : MonoBehaviour
         // Eðer soldierList boþsa playera saldýracak deðilse önce soldier a saldýracak!
         if (p1.getSoldierListSize() !=0)
         {
-            Debug.Log("Soldier Count = "+p1.getSoldierListSize());
+            
             transform.LookAt(FindClosestSoldier().transform);
-            foreach (Soldier temp in p1.fsoldierList)
-            {
-                Debug.Log(temp);
-            }
 
         } else
         {

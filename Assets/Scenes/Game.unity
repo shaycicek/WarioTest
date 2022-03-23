@@ -18468,6 +18468,11 @@ PrefabInstance:
       objectReference: {fileID: 521596473}
     - target: {fileID: 4265362761635285780, guid: f33eac02390cbad45b982442e307f882,
         type: 3}
+      propertyPath: restartBut
+      value: 
+      objectReference: {fileID: 1563478486}
+    - target: {fileID: 4265362761635285780, guid: f33eac02390cbad45b982442e307f882,
+        type: 3}
       propertyPath: whatIsEnemy.m_Bits
       value: 0
       objectReference: {fileID: 0}
